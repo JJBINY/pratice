@@ -1,5 +1,6 @@
 package app.user;
 
+import app.user.request.Login;
 import app.user.request.Signup;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
@@ -19,6 +20,7 @@ import org.springframework.test.web.servlet.ResultActions;
 import java.util.Optional;
 import java.util.stream.Stream;
 
+import static app.fixture.UserFixture.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -48,11 +50,7 @@ public class UserControllerTest {
     @DisplayName("회원가입 성공 테스트")
     void signupSuccess() throws Exception {
         // given
-        Signup request = Signup.builder()
-                .email("test@mail.com")
-                .password("1234")
-                .name("테스트유저")
-                .build();
+        Signup request = aSignup();
 
         // when
         ResultActions result = signup(request);
@@ -71,11 +69,7 @@ public class UserControllerTest {
     @DisplayName("회원가입 실패 테스트 : 이메일 중복")
     void signupFailureWithEmailConflict() throws Exception {
         // given
-        Signup request = Signup.builder()
-                .email("test@mail.com")
-                .password("1234")
-                .name("테스트유저")
-                .build();
+        Signup request = aSignup();
         signup(request);
 
         // when
@@ -88,15 +82,20 @@ public class UserControllerTest {
     }
 
 
-    static Stream<Arguments> signupFailureWithWrongData(){
+    static Stream<Arguments> signupFailureWithWrongData() {
         return Stream.of(
-                Arguments.of("testmail.com", "1234", "name"),
-                Arguments.of("", "1234", "name"),
+                Arguments.of("testmail.com", "password", "name"),
+                Arguments.of("", "password", "name"),
                 Arguments.of("test@mail.com", "", "name"),
-                Arguments.of("test@mail.com", "1234", ""),
-                Arguments.of("test", "1234", "")
+                Arguments.of("test@mail.com", "password", ""),
+                Arguments.of("test", "password", ""),
+                Arguments.of(null, "password", "name"),
+                Arguments.of("test@mail.com", null, "name"),
+                Arguments.of("test@mail.com", "password", null),
+                Arguments.of("test", "password", null)
         );
     }
+
     @ParameterizedTest
     @MethodSource
     @DisplayName("회원가입 실패 테스트 : 잘못된 입력 데이터")
@@ -119,6 +118,64 @@ public class UserControllerTest {
 
     private ResultActions signup(Signup request) throws Exception {
         ResultActions result = mockMvc.perform(post("/api/users/signup")
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)));
+        return result;
+    }
+
+    @Test
+    @DisplayName("로그인 성공 테스트")
+    void loginSuccess() throws Exception {
+        // given
+        Signup signup = aSignup();
+        signup(signup);
+        Login request = aLogin();
+
+        // when
+        ResultActions result = login(request);
+
+        // then
+        result.andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.token").exists())
+                .andExpect(jsonPath("$.token").isString())
+                .andExpect(jsonPath("$.userId").exists())
+                .andExpect(jsonPath("$.userId").isNumber());
+    }
+
+    static Stream<Arguments> loginFailureWithWrongData() {
+        Signup signup = aSignup();
+        String email = signup.email();
+        String password = signup.password();
+        return Stream.of(
+                Arguments.of("wrong" + email, password),
+                Arguments.of(email, "wrong" + password)
+        );
+    }
+
+    @ParameterizedTest
+    @MethodSource
+    @DisplayName("로그인 실패 테스트 : 이메일 또는 비밀번호가 올바르지 않음")
+    void loginFailureWithWrongData(String email, String password) throws Exception {
+        // given
+        signup(aSignup());
+        Login request = aLoginBuilder()
+                .email(email)
+                .password(password)
+                .build();
+
+        // when
+        ResultActions result = login(request);
+
+        // then
+        result.andDo(print())
+                .andExpect(status().isUnauthorized())
+                .andExpect(jsonPath("$.message").exists());
+    }
+
+    private ResultActions login(Login request) throws Exception {
+        ResultActions result = mockMvc.perform(post("/api/users/login")
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request)));
