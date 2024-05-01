@@ -13,9 +13,9 @@ public class SecurityConfig {
     @Bean
     public Jwt jwt(){
         return Jwt.builder()
-                .issuer(jwtConfigProps.getIssuer())
-                .secret(jwtConfigProps.getSecret())
-                .expirySeconds(jwtConfigProps.getExpirySeconds())
+                .issuer(jwtConfigProps.issuer)
+                .secret(jwtConfigProps.secret)
+                .expirySeconds(jwtConfigProps.expirySeconds)
                 .build();
     }
 

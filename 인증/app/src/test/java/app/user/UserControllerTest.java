@@ -1,7 +1,9 @@
 package app.user;
 
+import app.security.JwtConfigProps;
 import app.user.request.Login;
 import app.user.request.Signup;
+import app.user.response.LoginResponse;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
@@ -22,6 +24,7 @@ import java.util.stream.Stream;
 
 import static app.fixture.UserFixture.*;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -40,6 +43,9 @@ public class UserControllerTest {
 
     @Autowired
     UserRepository userRepository;
+
+    @Autowired
+    JwtConfigProps jwtConfigProps;
 
     @BeforeEach
     void beforeEach() {
@@ -116,14 +122,6 @@ public class UserControllerTest {
                 .andExpect(jsonPath("$.message").exists());
     }
 
-    private ResultActions signup(Signup request) throws Exception {
-        ResultActions result = mockMvc.perform(post("/api/users/signup")
-                .contentType(MediaType.APPLICATION_JSON)
-                .accept(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(request)));
-        return result;
-    }
-
     @Test
     @DisplayName("로그인 성공 테스트")
     void loginSuccess() throws Exception {
@@ -174,11 +172,55 @@ public class UserControllerTest {
                 .andExpect(jsonPath("$.message").exists());
     }
 
-    private ResultActions login(Login request) throws Exception {
-        ResultActions result = mockMvc.perform(post("/api/users/login")
+    @Test
+    @DisplayName("인증 성공 테스트")
+    void authSuccess() throws Exception {
+        // given
+        signup(aSignup());
+        String json = login(aLogin()).andReturn().getResponse().getContentAsString();
+        LoginResponse loginResponse = objectMapper.readValue(json, LoginResponse.class);
+        String token = loginResponse.token();
+
+        // when
+        ResultActions result = auth(token);
+
+        // then
+        result.andDo(print())
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    @DisplayName("인증 실패 테스트")
+    void authFailure() throws Exception {
+        // given
+        String token = "wrong_token";
+
+        // when
+        ResultActions result = auth(token);
+
+        // then
+        result.andDo(print())
+                .andExpect(status().isUnauthorized())
+                .andExpect(jsonPath("$.message").exists());
+    }
+
+    private ResultActions signup(Signup request) throws Exception {
+        return mockMvc.perform(post("/api/users/signup")
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request)));
-        return result;
+    }
+
+    private ResultActions login(Login request) throws Exception {
+        return mockMvc.perform(post("/api/users/login")
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)));
+    }
+
+    private ResultActions auth(String token) throws Exception{
+        return mockMvc.perform(get("/api/users/auth")
+                .header(jwtConfigProps.getHeader(), token)
+        );
     }
 }
