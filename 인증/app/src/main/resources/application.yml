@@ -10,3 +10,9 @@ spring:
     show-sql: true
     generate-ddl: true
     defer-datasource-initialization: true
+
+jwt:
+  header: Authorization
+  issuer: jjbin
+  secret: tCfj2cTfEvyAYeA+vJKihHb7t3Tt0NQZeJnvFkPbKtU=
+  expiry-seconds: 3600

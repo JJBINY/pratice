@@ -1,9 +1,12 @@
 package app.user;
 
+import app.user.request.Login;
 import app.user.request.Signup;
+import app.user.response.LoginResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -24,12 +27,12 @@ public class UserController {
                 .status(HttpStatus.NO_CONTENT)
                 .build();
     }
-//    @PostMapping("/login")
-//    public ResponseEntity<LoginResponse> login(@RequestBody Login request){
-//
-//        return ResponseEntity
-//                .status(HttpStatus.OK)
-//                .contentType(MediaType.APPLICATION_JSON)
-//                .body(userService.login(request));
-//    }
+    @PostMapping("/login")
+    public ResponseEntity<LoginResponse> login(@RequestBody Login request){
+
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(userService.login(request));
+    }
 }
