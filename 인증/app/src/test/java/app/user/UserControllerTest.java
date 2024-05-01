@@ -174,7 +174,7 @@ public class UserControllerTest {
 
     @Test
     @DisplayName("인증 성공 테스트")
-    void authSuccess() throws Exception {
+    void authenticationSuccess() throws Exception {
         // given
         signup(aSignup());
         String json = login(aLogin()).andReturn().getResponse().getContentAsString();
@@ -182,7 +182,7 @@ public class UserControllerTest {
         String token = loginResponse.token();
 
         // when
-        ResultActions result = auth(token);
+        ResultActions result = authentication(token);
 
         // then
         result.andDo(print())
@@ -191,12 +191,12 @@ public class UserControllerTest {
 
     @Test
     @DisplayName("인증 실패 테스트")
-    void authFailure() throws Exception {
+    void authenticationFailure() throws Exception {
         // given
         String token = "wrong_token";
 
         // when
-        ResultActions result = auth(token);
+        ResultActions result = authentication(token);
 
         // then
         result.andDo(print())
@@ -218,8 +218,8 @@ public class UserControllerTest {
                 .content(objectMapper.writeValueAsString(request)));
     }
 
-    private ResultActions auth(String token) throws Exception{
-        return mockMvc.perform(get("/api/users/auth")
+    private ResultActions authentication(String token) throws Exception{
+        return mockMvc.perform(get("/api/users/authentication")
                 .header(jwtConfigProps.getHeader(), token)
         );
     }
