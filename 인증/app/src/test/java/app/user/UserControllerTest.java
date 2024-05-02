@@ -1,5 +1,6 @@
 package app.user;
 
+import app.CleanUp;
 import app.security.JwtConfigProps;
 import app.user.request.Login;
 import app.user.request.Signup;
@@ -47,9 +48,12 @@ public class UserControllerTest {
     @Autowired
     JwtConfigProps jwtConfigProps;
 
+    @Autowired
+    CleanUp cleanUp;
+
     @BeforeEach
     void beforeEach() {
-        userRepository.deleteAll();
+        cleanUp.all();
     }
 
     @Test
