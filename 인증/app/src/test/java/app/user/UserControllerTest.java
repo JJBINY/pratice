@@ -208,6 +208,40 @@ public class UserControllerTest {
                 .andExpect(jsonPath("$.message").exists());
     }
 
+    @Test
+    @DisplayName("인가 성공 테스트")
+    void authorizationSuccess() throws Exception {
+        // given
+        signup(aSignup());
+        User user = userRepository.findByEmail(aSignup().email()).get();
+        user.changeRole(Role.ADMIN);
+        userRepository.save(user);
+        String token = loginAndGetToken(aLogin());
+
+        // when
+        ResultActions result = authorization(token);
+
+        // then
+        result.andDo(print())
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    @DisplayName("인가 실패 테스트")
+    void authorizationFailure() throws Exception {
+        // given
+        signup(aSignup());
+        String token = loginAndGetToken(aLogin());
+
+        // when
+        ResultActions result = authorization(token);
+
+        // then
+        result.andDo(print())
+                .andExpect(status().isForbidden())
+                .andExpect(jsonPath("$.message").exists());
+    }
+
     private ResultActions signup(Signup request) throws Exception {
         return mockMvc.perform(post("/api/users/signup")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -224,7 +258,18 @@ public class UserControllerTest {
 
     private ResultActions authentication(String token) throws Exception{
         return mockMvc.perform(get("/api/users/authentication")
-                .header(jwtConfigProps.getHeader(), token)
-        );
+                .header(jwtConfigProps.getHeader(), token));
+    }
+
+    private ResultActions authorization(String token) throws Exception{
+        return mockMvc.perform(get("/api/users/authorization")
+                .header(jwtConfigProps.getHeader(), token));
+    }
+
+    private String loginAndGetToken(Login request) throws Exception {
+        ResultActions loginResult = login(request);
+        String json = loginResult.andReturn().getResponse().getContentAsString();
+        LoginResponse loginResponse = objectMapper.readValue(json, LoginResponse.class);
+        return loginResponse.token();
     }
 }

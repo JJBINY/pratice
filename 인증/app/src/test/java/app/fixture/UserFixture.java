@@ -1,5 +1,6 @@
 package app.fixture;
 
+import app.user.Role;
 import app.user.User;
 import app.user.User.UserBuilder;
 import app.user.request.Login;
@@ -14,7 +15,8 @@ public class UserFixture {
         return User.builder()
                 .email(DEFAULT_EMAIL)
                 .password(DEFAULT_PASSWORD)
-                .name(DEFAULT_NAME);
+                .name(DEFAULT_NAME)
+                .role(Role.USER);
 
     }
 

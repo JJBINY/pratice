@@ -29,12 +29,20 @@ public class User extends BaseTimeEntity {
     private String password;
     @Column(nullable = false)
     private String name;
+    @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
+    private Role role;
 
     @Builder
-    private User(String email, String password, String name) {
+    private User(String email, String password, String name, Role role) {
         this.email = email;
         this.password = password;
         this.name = name;
+        this.role = role;
+    }
+
+    public void changeRole(Role role){
+        this.role = role;
     }
 
     @Override
