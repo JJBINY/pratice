@@ -1,6 +1,7 @@
 package app.security;
 
-import app.exception.type.UnauthorizedException;
+import app.exception.type.UnauthenticatedException;
+import app.user.Role;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.algorithms.Algorithm;
@@ -40,19 +41,24 @@ public class Jwt {
         return JWT.create().withIssuer(issuer)
                 .withClaim("userId", claims.userId)
                 .withClaim("userName", claims.userName)
+                .withClaim("roleName", claims.role.name())
                 .withExpiresAt(Instant.now().plus(expirySeconds, ChronoUnit.SECONDS))
                 .sign(algorithm);
     }
 
-    public void verify(String jwt) {
+    public Claims verify(String jwt) {
         try {
             DecodedJWT decodedJwt = jwtVerifier.verify(jwt);
-//            decodedJwt.getClaim()
+            Long userId = decodedJwt.getClaim("userId").asLong();
+            String userName = decodedJwt.getClaim("userName").asString();
+            String roleName = decodedJwt.getClaim("roleName").asString();
+            Role role = Role.valueOf(Role.class, roleName);
+            return new Claims(userId, userName, role);
         } catch (JWTVerificationException e) {
-            throw new UnauthorizedException("유효하지 않은 토큰입니다.");
+            throw new UnauthenticatedException("유효하지 않은 토큰입니다.");
         }
     }
 
-    public record Claims(Long userId, String userName) {
+    public record Claims(Long userId, String userName, Role role) {
     }
 }

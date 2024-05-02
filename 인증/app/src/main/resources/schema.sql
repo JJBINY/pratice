@@ -5,6 +5,7 @@ create table users
     email    varchar(50) not null unique,
     password varchar(80) not null,
     name     varchar(30) not null,
+    role     varchar(10) not null check (role in ('USER','ADMIN')),
     created_at timestamp not null default current_timestamp(),
     last_modified_at timestamp not null default current_timestamp(),
     primary key (id)

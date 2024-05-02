@@ -1,8 +1,7 @@
 package app.user;
 
 import app.exception.type.AlreadyExistsException;
-import app.exception.type.NotFoundException;
-import app.exception.type.UnauthorizedException;
+import app.exception.type.UnauthenticatedException;
 import app.security.Jwt;
 import app.security.PasswordEncoder;
 import app.user.request.Login;
@@ -16,6 +15,7 @@ import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class UserService {
 
     private final UserRepository userRepository;
@@ -35,18 +35,19 @@ public class UserService {
                 .email(request.email())
                 .password(encodedPassword)
                 .name(request.name())
+                .role(Role.USER)
                 .build());
     }
 
     @Transactional
     public LoginResponse login(Login request) {
         User user = userRepository.findByEmail(request.email())
-                .orElseThrow(() -> new UnauthorizedException());
+                .orElseThrow(() -> new UnauthenticatedException());
         if(!passwordEncoder.matches(request.password(), user.getPassword())){
-            throw new UnauthorizedException();
+            throw new UnauthenticatedException();
         }
 
-        String token = jwt.create(new Jwt.Claims(user.getId(), user.getName()));
+        String token = jwt.create(new Jwt.Claims(user.getId(), user.getName(),user.getRole()));
 
         return new LoginResponse(user.getId(), token);
     }

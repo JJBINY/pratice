@@ -3,7 +3,7 @@ package app.exception.type;
 import org.springframework.http.HttpStatus;
 
 public class UnauthorizedException extends CustomException{
-    private static final String MESSAGE = "인증에 실패하였습니다.";
+    private static final String MESSAGE = "해당 작업에 대한 권한이 없습니다.";
     public UnauthorizedException() {
         super(MESSAGE);
     }
@@ -14,6 +14,6 @@ public class UnauthorizedException extends CustomException{
 
     @Override
     public HttpStatus getStatus() {
-        return HttpStatus.UNAUTHORIZED;
+        return HttpStatus.FORBIDDEN;
     }
 }

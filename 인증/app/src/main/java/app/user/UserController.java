@@ -1,5 +1,6 @@
 package app.user;
 
+import app.security.RequireAuthority;
 import app.user.request.Login;
 import app.user.request.Signup;
 import app.user.response.LoginResponse;
@@ -34,9 +35,17 @@ public class UserController {
     }
 
     @GetMapping("/authentication")
-    public ResponseEntity<String> auth(){
+    public ResponseEntity<String> authentication(){
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body("인증성공");
+    }
+
+    @RequireAuthority(authorities = {Role.ADMIN})
+    @GetMapping("/authorization")
+    public ResponseEntity<String> authorization(){
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body("인가성공");
     }
 }
