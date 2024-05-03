@@ -1,6 +1,9 @@
 package app.user;
 
 import app.common.BaseTimeEntity;
+import app.exception.type.UnauthenticatedException;
+import app.security.PasswordEncoder;
+import app.user.request.Signup;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import lombok.AccessLevel;
@@ -12,12 +15,19 @@ import org.apache.commons.lang3.builder.ToStringStyle;
 
 import java.util.Objects;
 
+import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.checkNotNull;
+import static org.apache.commons.lang3.EnumUtils.isValidEnum;
+import static org.apache.commons.lang3.ObjectUtils.isEmpty;
+import static org.apache.commons.lang3.ObjectUtils.isNotEmpty;
 
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
+
 @Entity
 @Table(name = "users")
 @Getter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class User extends BaseTimeEntity {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -25,24 +35,63 @@ public class User extends BaseTimeEntity {
     @Email
     @Column(unique = true, nullable = false)
     private String email;
+
     @Column(nullable = false)
     private String password;
+
     @Column(nullable = false)
     private String name;
+
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     private Role role;
 
-    @Builder
+    @Builder(access = AccessLevel.PROTECTED)
     private User(String email, String password, String name, Role role) {
+        checkArgument(isNotEmpty(email));
+        checkArgument(isNotEmpty(password));
+        checkArgument(isNotEmpty(name));
+        checkArgument(isEmpty(role) || isValidEnum(Role.class, role.name()));
+
         this.email = email;
         this.password = password;
         this.name = name;
-        this.role = role;
+        this.role = (role == null ? Role.USER : role);
+
+        assert (isNotEmpty(this.email));
+        assert (isNotEmpty(this.password));
+        assert (isNotEmpty(this.name));
+        assert (isValidEnum(Role.class, this.role.name()));
     }
 
-    public void changeRole(Role role){
+    public static User create(Signup request, PasswordEncoder passwordEncoder) {
+        checkArgument(isNotEmpty(request));
+        checkArgument(isNotEmpty(passwordEncoder));
+
+        User user = User.builder()
+                .email(request.email())
+                .password(passwordEncoder.encode(request.password()))
+                .name(request.name())
+                .build();
+
+        assert (isNotEmpty(user));
+        assert (!user.password.equals(request.password()));
+        return user;
+    }
+
+    public void login(String plainPassword, PasswordEncoder passwordEncoder) {
+        checkArgument(isNotEmpty(plainPassword));
+        checkArgument(isNotEmpty(passwordEncoder));
+
+        if (!passwordEncoder.matches(plainPassword, password)) {
+            throw new UnauthenticatedException();
+        }
+    }
+
+    public void changeRole(Role role) {
+        checkNotNull(role);
         this.role = role;
+        assert (isValidEnum(Role.class, role.name()));
     }
 
     @Override
@@ -67,13 +116,13 @@ public class User extends BaseTimeEntity {
 
     @Override
     public String toString() {
-        return new ToStringBuilder(this,ToStringStyle.MULTI_LINE_STYLE)
+        return new ToStringBuilder(this, ToStringStyle.MULTI_LINE_STYLE)
                 .append("id", id)
-                .append("email",email)
-                .append("password","[PROTECTED]")
-                .append("name",name)
+                .append("email", email)
+                .append("password", "[PROTECTED]")
+                .append("name", name)
                 .append("createAt", getCreatedAt())
-                .append("lastModifiedAt",getLastModifiedAt())
+                .append("lastModifiedAt", getLastModifiedAt())
                 .build();
     }
 }

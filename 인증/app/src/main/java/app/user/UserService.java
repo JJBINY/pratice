@@ -20,7 +20,6 @@ public class UserService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
-    private final Jwt jwt;
 
     @Transactional
     public void signup(Signup request) {
@@ -28,28 +27,15 @@ public class UserService {
         if(userOptional.isPresent()){
             throw new AlreadyExistsException();
         }
-
-        String encodedPassword = passwordEncoder.encode(request.password());
-
-        userRepository.save(User.builder()
-                .email(request.email())
-                .password(encodedPassword)
-                .name(request.name())
-                .role(Role.USER)
-                .build());
+        userRepository.save(User.create(request, passwordEncoder));
     }
 
     @Transactional
-    public LoginResponse login(Login request) {
+    public User login(Login request) {
         User user = userRepository.findByEmail(request.email())
                 .orElseThrow(() -> new UnauthenticatedException());
-        if(!passwordEncoder.matches(request.password(), user.getPassword())){
-            throw new UnauthenticatedException();
-        }
-
-        String token = jwt.create(new Jwt.Claims(user.getId(), user.getName(),user.getRole()));
-
-        return new LoginResponse(user.getId(), token);
+        user.login(request.password(), passwordEncoder);
+        return user;
     }
 
 }

@@ -2,11 +2,10 @@ package app.fixture;
 
 import app.user.Role;
 import app.user.User;
-import app.user.User.UserBuilder;
 import app.user.request.Login;
 import app.user.request.Signup;
 
-public class UserFixture {
+public class UserFixture extends User{
 
     public static String DEFAULT_EMAIL = "test@mail.com";
     public static String DEFAULT_PASSWORD = "password";
@@ -17,7 +16,6 @@ public class UserFixture {
                 .password(DEFAULT_PASSWORD)
                 .name(DEFAULT_NAME)
                 .role(Role.USER);
-
     }
 
     public static User anUser(){

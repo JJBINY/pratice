@@ -2,6 +2,7 @@ package app.security;
 
 import app.exception.type.UnauthenticatedException;
 import app.user.Role;
+import app.user.User;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.algorithms.Algorithm;
@@ -37,11 +38,11 @@ public class Jwt {
                 .build();
     }
 
-    public String create(Claims claims) {
+    public String create(User user) {
         return JWT.create().withIssuer(issuer)
-                .withClaim("userId", claims.userId)
-                .withClaim("userName", claims.userName)
-                .withClaim("roleName", claims.role.name())
+                .withClaim("userId", user.getId())
+                .withClaim("userName", user.getName())
+                .withClaim("roleName", user.getRole().name())
                 .withExpiresAt(Instant.now().plus(expirySeconds, ChronoUnit.SECONDS))
                 .sign(algorithm);
     }
