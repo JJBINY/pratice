@@ -258,12 +258,12 @@ public class UserControllerTest {
 
     private ResultActions authentication(String token) throws Exception{
         return mockMvc.perform(get("/api/users/authentication")
-                .header(jwtConfigProps.getHeader(), token));
+                .header(jwtConfigProps.getHeader(), String.join(" ", jwtConfigProps.getScheme(), token)));
     }
 
     private ResultActions authorization(String token) throws Exception{
         return mockMvc.perform(get("/api/users/authorization")
-                .header(jwtConfigProps.getHeader(), token));
+                .header(jwtConfigProps.getHeader(), String.join(" ", jwtConfigProps.getScheme(), token)));
     }
 
     private String loginAndGetToken(Login request) throws Exception {

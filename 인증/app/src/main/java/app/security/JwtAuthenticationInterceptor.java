@@ -6,6 +6,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
 
+import static org.apache.commons.lang3.StringUtils.substringAfter;
+
 @Component
 @RequiredArgsConstructor
 public class JwtAuthenticationInterceptor implements HandlerInterceptor {
@@ -14,10 +16,10 @@ public class JwtAuthenticationInterceptor implements HandlerInterceptor {
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
-        String token = request.getHeader(jwtConfigProps.getHeader());
+        String AuthHeader = request.getHeader(jwtConfigProps.getHeader());
+        String token = substringAfter(AuthHeader, jwtConfigProps.scheme).trim();
         Jwt.Claims claims = jwt.verify(token);
         request.setAttribute("role", claims.role());
         return true;
     }
-
 }

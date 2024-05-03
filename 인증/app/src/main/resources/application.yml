@@ -18,6 +18,7 @@ spring:
 
 jwt:
   header: Authorization
+  scheme: bearer
   issuer: jjbin
   secret: tCfj2cTfEvyAYeA+vJKihHb7t3Tt0NQZeJnvFkPbKtU=
   expiry-seconds: 3600

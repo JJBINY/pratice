@@ -17,6 +17,8 @@ public class JwtConfigProps {
     @NotBlank
     String header;
     @NotBlank
+    String scheme;
+    @NotBlank
     String issuer;
     @NotBlank
     String secret;
@@ -25,5 +27,9 @@ public class JwtConfigProps {
 
     public String getHeader() {
         return header;
+    }
+
+    public String getScheme() {
+        return scheme;
     }
 }
