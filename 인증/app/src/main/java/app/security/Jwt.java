@@ -41,7 +41,6 @@ public class Jwt {
     public String create(User user) {
         return JWT.create().withIssuer(issuer)
                 .withClaim("userId", user.getId())
-                .withClaim("userName", user.getName())
                 .withClaim("roleName", user.getRole().name())
                 .withExpiresAt(Instant.now().plus(expirySeconds, ChronoUnit.SECONDS))
                 .sign(algorithm);
@@ -51,15 +50,14 @@ public class Jwt {
         try {
             DecodedJWT decodedJwt = jwtVerifier.verify(jwt);
             Long userId = decodedJwt.getClaim("userId").asLong();
-            String userName = decodedJwt.getClaim("userName").asString();
             String roleName = decodedJwt.getClaim("roleName").asString();
             Role role = Role.valueOf(Role.class, roleName);
-            return new Claims(userId, userName, role);
+            return new Claims(userId, role);
         } catch (JWTVerificationException e) {
             throw new UnauthenticatedException("유효하지 않은 토큰입니다.");
         }
     }
 
-    public record Claims(Long userId, String userName, Role role) {
+    public record Claims(Long userId, Role role) {
     }
 }

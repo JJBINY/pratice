@@ -1,6 +1,7 @@
 package app.user;
 
 import app.CleanUp;
+import app.security.Jwt;
 import app.security.JwtConfigProps;
 import app.user.request.Login;
 import app.user.request.Signup;
@@ -49,6 +50,9 @@ public class UserControllerTest {
     JwtConfigProps jwtConfigProps;
 
     @Autowired
+    Jwt jwt;
+
+    @Autowired
     CleanUp cleanUp;
 
     @BeforeEach
@@ -60,10 +64,10 @@ public class UserControllerTest {
     @DisplayName("회원가입 성공 테스트")
     void signupSuccess() throws Exception {
         // given
-        Signup request = aSignup();
+        Signup request = aSignupRequest();
 
         // when
-        ResultActions result = signup(request);
+        ResultActions result = callSignupApi(request);
 
         // then
         result.andDo(print())
@@ -79,11 +83,11 @@ public class UserControllerTest {
     @DisplayName("회원가입 실패 테스트 : 이메일 중복")
     void signupFailureWithEmailConflict() throws Exception {
         // given
-        Signup request = aSignup();
-        signup(request);
+        Signup request = aSignupRequest();
+        callSignupApi(request);
 
         // when
-        ResultActions result = signup(request);
+        ResultActions result = callSignupApi(request);
 
         // then
         result.andDo(print())
@@ -118,7 +122,7 @@ public class UserControllerTest {
                 .build();
 
         // when
-        ResultActions result = signup(request);
+        ResultActions result = callSignupApi(request);
 
         // then
         result.andDo(print())
@@ -130,24 +134,21 @@ public class UserControllerTest {
     @DisplayName("로그인 성공 테스트")
     void loginSuccess() throws Exception {
         // given
-        Signup signup = aSignup();
-        signup(signup);
-        Login request = aLogin();
+        callSignupApi(aSignupRequest());
+        Login request = aLoginRequest();
 
         // when
-        ResultActions result = login(request);
+        ResultActions result = callLoginApi(request);
 
         // then
         result.andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.token").exists())
-                .andExpect(jsonPath("$.token").isString())
-                .andExpect(jsonPath("$.userId").exists())
-                .andExpect(jsonPath("$.userId").isNumber());
+                .andExpect(jsonPath("$.token").isString());
     }
 
     static Stream<Arguments> loginFailureWithWrongData() {
-        Signup signup = aSignup();
+        Signup signup = aSignupRequest();
         String email = signup.email();
         String password = signup.password();
         return Stream.of(
@@ -161,14 +162,14 @@ public class UserControllerTest {
     @DisplayName("로그인 실패 테스트 : 이메일 또는 비밀번호가 올바르지 않음")
     void loginFailureWithWrongData(String email, String password) throws Exception {
         // given
-        signup(aSignup());
-        Login request = aLoginBuilder()
+        callSignupApi(aSignupRequest());
+        Login request = aLoginRequestBuilder()
                 .email(email)
                 .password(password)
                 .build();
 
         // when
-        ResultActions result = login(request);
+        ResultActions result = callLoginApi(request);
 
         // then
         result.andDo(print())
@@ -180,13 +181,11 @@ public class UserControllerTest {
     @DisplayName("인증 성공 테스트")
     void authenticationSuccess() throws Exception {
         // given
-        signup(aSignup());
-        String json = login(aLogin()).andReturn().getResponse().getContentAsString();
-        LoginResponse loginResponse = objectMapper.readValue(json, LoginResponse.class);
-        String token = loginResponse.token();
+        callSignupApi(aSignupRequest());
+        String token = callLoginApiAndGetToken(aLoginRequest());
 
         // when
-        ResultActions result = authentication(token);
+        ResultActions result = callAuthenticationApi(token);
 
         // then
         result.andDo(print())
@@ -200,7 +199,7 @@ public class UserControllerTest {
         String token = "wrong_token";
 
         // when
-        ResultActions result = authentication(token);
+        ResultActions result = callAuthenticationApi(token);
 
         // then
         result.andDo(print())
@@ -212,14 +211,14 @@ public class UserControllerTest {
     @DisplayName("인가 성공 테스트")
     void authorizationSuccess() throws Exception {
         // given
-        signup(aSignup());
-        User user = userRepository.findByEmail(aSignup().email()).get();
+        callSignupApi(aSignupRequest());
+        User user = userRepository.findByEmail(aSignupRequest().email()).get();
         user.changeRole(Role.ADMIN);
         userRepository.save(user);
-        String token = loginAndGetToken(aLogin());
+        String token = callLoginApiAndGetToken(aLoginRequest());
 
         // when
-        ResultActions result = authorization(token);
+        ResultActions result = callAuthorizationApi(token);
 
         // then
         result.andDo(print())
@@ -230,11 +229,11 @@ public class UserControllerTest {
     @DisplayName("인가 실패 테스트")
     void authorizationFailure() throws Exception {
         // given
-        signup(aSignup());
-        String token = loginAndGetToken(aLogin());
+        callSignupApi(aSignupRequest());
+        String token = callLoginApiAndGetToken(aLoginRequest());
 
         // when
-        ResultActions result = authorization(token);
+        ResultActions result = callAuthorizationApi(token);
 
         // then
         result.andDo(print())
@@ -242,32 +241,32 @@ public class UserControllerTest {
                 .andExpect(jsonPath("$.message").exists());
     }
 
-    private ResultActions signup(Signup request) throws Exception {
+    private ResultActions callSignupApi(Signup request) throws Exception {
         return mockMvc.perform(post("/api/users/signup")
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request)));
     }
 
-    private ResultActions login(Login request) throws Exception {
+    private ResultActions callLoginApi(Login request) throws Exception {
         return mockMvc.perform(post("/api/users/login")
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request)));
     }
 
-    private ResultActions authentication(String token) throws Exception{
+    private ResultActions callAuthenticationApi(String token) throws Exception{
         return mockMvc.perform(get("/api/users/authentication")
                 .header(jwtConfigProps.getHeader(), String.join(" ", jwtConfigProps.getScheme(), token)));
     }
 
-    private ResultActions authorization(String token) throws Exception{
+    private ResultActions callAuthorizationApi(String token) throws Exception{
         return mockMvc.perform(get("/api/users/authorization")
                 .header(jwtConfigProps.getHeader(), String.join(" ", jwtConfigProps.getScheme(), token)));
     }
 
-    private String loginAndGetToken(Login request) throws Exception {
-        ResultActions loginResult = login(request);
+    private String callLoginApiAndGetToken(Login request) throws Exception {
+        ResultActions loginResult = callLoginApi(request);
         String json = loginResult.andReturn().getResponse().getContentAsString();
         LoginResponse loginResponse = objectMapper.readValue(json, LoginResponse.class);
         return loginResponse.token();

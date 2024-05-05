@@ -1,7 +1,9 @@
 package app.user.request;
 
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
 import lombok.Builder;
 
 @Builder
-public record Login(String email, String password) {
+public record Login(@Email @NotBlank String email, @NotBlank String password) {
 }

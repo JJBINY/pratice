@@ -46,6 +46,21 @@ public class User extends BaseTimeEntity {
     @Enumerated(EnumType.STRING)
     private Role role;
 
+    public static User create(Signup request, PasswordEncoder passwordEncoder) {
+        checkArgument(isNotEmpty(request));
+        checkArgument(isNotEmpty(passwordEncoder));
+
+        User user = User.builder()
+                .email(request.email())
+                .password(passwordEncoder.encode(request.password()))
+                .name(request.name())
+                .build();
+
+        assert (isNotEmpty(user));
+        assert (!user.password.equals(request.password()));
+        return user;
+    }
+
     @Builder(access = AccessLevel.PROTECTED)
     private User(String email, String password, String name, Role role) {
         checkArgument(isNotEmpty(email));
@@ -62,21 +77,6 @@ public class User extends BaseTimeEntity {
         assert (isNotEmpty(this.password));
         assert (isNotEmpty(this.name));
         assert (isValidEnum(Role.class, this.role.name()));
-    }
-
-    public static User create(Signup request, PasswordEncoder passwordEncoder) {
-        checkArgument(isNotEmpty(request));
-        checkArgument(isNotEmpty(passwordEncoder));
-
-        User user = User.builder()
-                .email(request.email())
-                .password(passwordEncoder.encode(request.password()))
-                .name(request.name())
-                .build();
-
-        assert (isNotEmpty(user));
-        assert (!user.password.equals(request.password()));
-        return user;
     }
 
     public void login(String plainPassword, PasswordEncoder passwordEncoder) {

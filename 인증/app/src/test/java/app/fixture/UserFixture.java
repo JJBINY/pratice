@@ -22,24 +22,24 @@ public class UserFixture extends User{
         return UserFixture.anUserBuilder().build();
     }
 
-    public static Signup.SignupBuilder aSignupBuilder(){
+    public static Signup.SignupBuilder aSignupRequestBuilder(){
         return Signup.builder()
                 .email(DEFAULT_EMAIL)
                 .password(DEFAULT_PASSWORD)
                 .name(DEFAULT_NAME);
     }
 
-    public static Signup aSignup(){
-        return aSignupBuilder().build();
+    public static Signup aSignupRequest(){
+        return aSignupRequestBuilder().build();
     }
 
-    public static Login.LoginBuilder aLoginBuilder(){
+    public static Login.LoginBuilder aLoginRequestBuilder(){
         return Login.builder()
                 .email(DEFAULT_EMAIL)
                 .password(DEFAULT_PASSWORD);
     }
 
-    public static Login aLogin(){
-        return aLoginBuilder().build();
+    public static Login aLoginRequest(){
+        return aLoginRequestBuilder().build();
     }
 }

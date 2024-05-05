@@ -29,12 +29,12 @@ public class UserController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<LoginResponse> login(@RequestBody Login request){
+    public ResponseEntity<LoginResponse> login(@RequestBody @Valid Login request){
         User user = userService.login(request);
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .contentType(MediaType.APPLICATION_JSON)
-                .body(new LoginResponse(user.getId(), jwt.create(user)));
+                .body(new LoginResponse(jwt.create(user)));
     }
 
     @GetMapping("/authentication")

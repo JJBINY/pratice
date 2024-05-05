@@ -2,11 +2,9 @@ package app.user;
 
 import app.exception.type.AlreadyExistsException;
 import app.exception.type.UnauthenticatedException;
-import app.security.Jwt;
 import app.security.PasswordEncoder;
 import app.user.request.Login;
 import app.user.request.Signup;
-import app.user.response.LoginResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
