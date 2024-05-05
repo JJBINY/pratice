@@ -1,4 +1,4 @@
-package app;
+package app.common;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;

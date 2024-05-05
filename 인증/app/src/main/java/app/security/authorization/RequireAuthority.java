@@ -1,4 +1,4 @@
-package app.security;
+package app.security.authorization;
 
 import app.user.Role;
 

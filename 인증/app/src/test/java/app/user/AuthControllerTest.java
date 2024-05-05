@@ -1,24 +1,16 @@
 package app.user;
 
-import app.CleanUp;
-import app.security.Jwt;
-import app.security.JwtConfigProps;
+import app.common.ApiTest;
 import app.user.request.Login;
 import app.user.request.Signup;
-import app.user.response.LoginResponse;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.http.MediaType;
-import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 
 import java.util.Optional;
@@ -26,8 +18,6 @@ import java.util.stream.Stream;
 
 import static app.fixture.UserFixture.*;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -35,30 +25,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @Slf4j
 @SpringBootTest
 @AutoConfigureMockMvc
-public class UserControllerTest {
-
-    @Autowired
-    ObjectMapper objectMapper;
-
-    @Autowired
-    MockMvc mockMvc;
-
-    @Autowired
-    UserRepository userRepository;
-
-    @Autowired
-    JwtConfigProps jwtConfigProps;
-
-    @Autowired
-    Jwt jwt;
-
-    @Autowired
-    CleanUp cleanUp;
-
-    @BeforeEach
-    void beforeEach() {
-        cleanUp.all();
-    }
+public class AuthControllerTest extends ApiTest {
 
     @Test
     @DisplayName("회원가입 성공 테스트")
@@ -239,36 +206,5 @@ public class UserControllerTest {
         result.andDo(print())
                 .andExpect(status().isForbidden())
                 .andExpect(jsonPath("$.message").exists());
-    }
-
-    private ResultActions callSignupApi(Signup request) throws Exception {
-        return mockMvc.perform(post("/api/users/signup")
-                .contentType(MediaType.APPLICATION_JSON)
-                .accept(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(request)));
-    }
-
-    private ResultActions callLoginApi(Login request) throws Exception {
-        return mockMvc.perform(post("/api/users/login")
-                .contentType(MediaType.APPLICATION_JSON)
-                .accept(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(request)));
-    }
-
-    private ResultActions callAuthenticationApi(String token) throws Exception{
-        return mockMvc.perform(get("/api/users/authentication")
-                .header(jwtConfigProps.getHeader(), String.join(" ", jwtConfigProps.getScheme(), token)));
-    }
-
-    private ResultActions callAuthorizationApi(String token) throws Exception{
-        return mockMvc.perform(get("/api/users/authorization")
-                .header(jwtConfigProps.getHeader(), String.join(" ", jwtConfigProps.getScheme(), token)));
-    }
-
-    private String callLoginApiAndGetToken(Login request) throws Exception {
-        ResultActions loginResult = callLoginApi(request);
-        String json = loginResult.andReturn().getResponse().getContentAsString();
-        LoginResponse loginResponse = objectMapper.readValue(json, LoginResponse.class);
-        return loginResponse.token();
     }
 }
