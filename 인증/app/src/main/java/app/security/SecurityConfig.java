@@ -11,16 +11,12 @@ public class SecurityConfig {
     private final JwtConfigProps jwtConfigProps;
 
     @Bean
-    public Jwt jwt(){
-        return Jwt.builder()
-                .issuer(jwtConfigProps.issuer)
-                .secret(jwtConfigProps.secret)
-                .expirySeconds(jwtConfigProps.expirySeconds)
-                .build();
+    public Jwt jwt() {
+        return new Jwt(jwtConfigProps);
     }
 
     @Bean
-    public PasswordEncoder passwordEncoder(){
+    public PasswordEncoder passwordEncoder() {
         return new PasswordEncoder();
     }
 }

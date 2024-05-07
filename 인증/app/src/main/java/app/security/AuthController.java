@@ -9,7 +9,6 @@ import app.user.request.Signup;
 import app.user.response.LoginResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -18,11 +17,9 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/api/auth")
 @RequiredArgsConstructor
-@Slf4j
 public class AuthController {
 
     private final UserService userService;
-    private final Jwt jwt;
 
     @PostMapping("/signup")
     public ResponseEntity<Object> signup(@RequestBody @Valid Signup request) {
@@ -34,12 +31,18 @@ public class AuthController {
 
     @PostMapping("/login")
     public ResponseEntity<LoginResponse> login(@RequestBody @Valid Login request) {
-        User user = userService.login(request);
-        log.info("[로그인] userId = {} ", user.getId());
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .contentType(MediaType.APPLICATION_JSON)
-                .body(new LoginResponse(jwt.create(user), jwt.createRefresh(user)));
+                .body(userService.login(request));
+    }
+
+    @GetMapping("/refresh")
+    public ResponseEntity<LoginResponse> refresh(@AuthenticateUser User user) {
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(userService.refresh(user));
     }
 
     @GetMapping("/authentication")

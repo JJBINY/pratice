@@ -16,14 +16,24 @@ public class JwtConfigProps {
 
     @NotBlank
     String header;
+
     @NotBlank
     String scheme;
+
     @NotBlank
     String issuer;
+
     @NotBlank
     String secret;
-    @Min(600) @Max(259200)
+
+    @Min(600) @Max(86400)
     long expirySeconds;
+
+    @NotBlank
+    String refreshHeader;
+
+    @Min(129600) @Max(259200)
+    long refreshExpirySeconds;
 
     public String getHeader() {
         return header;
@@ -31,5 +41,9 @@ public class JwtConfigProps {
 
     public String getScheme() {
         return scheme;
+    }
+
+    public String getRefreshHeader() {
+        return refreshHeader;
     }
 }

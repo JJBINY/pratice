@@ -72,10 +72,14 @@ public class ApiTest {
                 .header(jwtConfigProps.getHeader(), String.join(" ", jwtConfigProps.getScheme(), token)));
     }
 
-    protected String callLoginApiAndGetToken(Login request) throws Exception {
+    protected LoginResponse callLoginApiAndGetResponse(Login request) throws Exception {
         ResultActions loginResult = callLoginApi(request);
         String json = loginResult.andReturn().getResponse().getContentAsString();
-        LoginResponse loginResponse = objectMapper.readValue(json, LoginResponse.class);
-        return loginResponse.token();
+        return objectMapper.readValue(json, LoginResponse.class);
+    }
+
+    protected ResultActions callRefreshApi(String refresh) throws Exception {
+         return mockMvc.perform(get("/api/auth/refresh")
+                .header(jwtConfigProps.getRefreshHeader(), String.join(" ", jwtConfigProps.getScheme(), refresh)));
     }
 }

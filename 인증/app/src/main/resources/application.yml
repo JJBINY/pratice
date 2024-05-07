@@ -15,10 +15,18 @@ spring:
 #    defer-datasource-initialization: true
     hibernate:
       ddl-auto: none
+  data:
+    redis:
+      host: localhost
+      port: 6379
+      connect-timeout: 30s
+      timeout: 10s
 
 jwt:
   header: Authorization
+  refresh-header: Refresh
   scheme: bearer
   issuer: jjbin
   secret: tCfj2cTfEvyAYeA+vJKihHb7t3Tt0NQZeJnvFkPbKtU=
   expiry-seconds: 3600
+  refresh-expiry-seconds: 259200
