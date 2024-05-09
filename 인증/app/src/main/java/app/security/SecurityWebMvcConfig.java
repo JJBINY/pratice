@@ -1,4 +1,4 @@
-package app.common;
+package app.security;
 
 import app.security.authentication.AuthenticateUserResolver;
 import app.security.authentication.JwtAuthenticationInterceptor;
@@ -13,7 +13,7 @@ import java.util.List;
 
 @Configuration
 @RequiredArgsConstructor
-public class WebMvcConfig implements WebMvcConfigurer {
+public class SecurityWebMvcConfig implements WebMvcConfigurer {
 
     private final JwtAuthenticationInterceptor jwtAuthenticationInterceptor;
     private final AuthorizationInterceptor authorizationInterceptor;

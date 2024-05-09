@@ -1,4 +1,4 @@
-package app.security;
+package app.security.authentication;
 
 import app.common.CreateTimeEntity;
 import jakarta.persistence.Entity;
@@ -12,7 +12,7 @@ import lombok.NoArgsConstructor;
 
 @Entity
 @Table(name = "refreshes")
-@Getter
+@Getter(AccessLevel.PROTECTED)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Refresh extends CreateTimeEntity {
     @Id

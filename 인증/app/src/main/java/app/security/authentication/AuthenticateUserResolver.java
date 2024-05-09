@@ -1,8 +1,6 @@
 package app.security.authentication;
 
 import app.exception.type.UnauthenticatedException;
-import app.security.Refresh;
-import app.security.RefreshRepository;
 import app.security.UserPrincipal;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;

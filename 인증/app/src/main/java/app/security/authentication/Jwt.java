@@ -13,7 +13,11 @@ import lombok.Getter;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
+import java.util.Map;
 import java.util.Random;
+
+import static app.security.authentication.TokenType.ACCESS;
+import static app.security.authentication.TokenType.REFRESH;
 
 /**
  * Reference : https://github.com/auth0/java-jwt/blob/master/EXAMPLES.md
@@ -22,8 +26,7 @@ import java.util.Random;
 public class Jwt {
     private final String issuer;
     private final String secret;
-    private final long expirySeconds;
-    private final long refreshExpirySeconds;
+    private final Map<TokenType, Long> expirySecondsMap;
     private final Algorithm algorithm;
     private final JWTVerifier jwtVerifier;
     private final Random randomSalt;
@@ -31,8 +34,9 @@ public class Jwt {
     public Jwt(JwtConfigProps jwtConfigProps) {
         this.issuer = jwtConfigProps.issuer;
         this.secret = jwtConfigProps.secret;
-        this.expirySeconds = jwtConfigProps.expirySeconds;
-        this.refreshExpirySeconds = jwtConfigProps.refreshExpirySeconds;
+        this.expirySecondsMap = Map.of(
+                ACCESS, jwtConfigProps.expirySeconds,
+                REFRESH, jwtConfigProps.refreshExpirySeconds);
         this.algorithm = Algorithm.HMAC512(secret);
         this.jwtVerifier = JWT.require(algorithm)
                 .withIssuer(issuer)
@@ -40,12 +44,8 @@ public class Jwt {
         this.randomSalt = new Random();
     }
 
-    public String create(UserPrincipal userPrincipal) {
-        return create(userPrincipal, TokenType.ACCESS, expirySeconds);
-    }
-
-    public String createRefresh(UserPrincipal userPrincipal) {
-        return create(userPrincipal, TokenType.REFRESH, refreshExpirySeconds);
+    public String create(UserPrincipal userPrincipal, TokenType type) {
+        return create(userPrincipal, type, expirySecondsMap.get(type));
     }
 
     private String create(UserPrincipal userPrincipal, TokenType type, long expirySeconds) {

@@ -3,10 +3,8 @@ package app.user;
 import app.exception.type.AlreadyExistsException;
 import app.exception.type.UnauthenticatedException;
 import app.security.PasswordEncoder;
-import app.security.Refresh;
-import app.security.RefreshRepository;
 import app.security.UserPrincipal;
-import app.security.authentication.Jwt;
+import app.security.authentication.AuthenticationProvider;
 import app.user.request.Login;
 import app.user.request.Signup;
 import app.user.response.LoginResponse;
@@ -24,9 +22,8 @@ import java.util.Optional;
 public class UserService {
 
     private final UserRepository userRepository;
-    private final RefreshRepository refreshRepository;
     private final PasswordEncoder passwordEncoder;
-    private final Jwt jwt;
+    private final AuthenticationProvider authenticationProvider;
 
     @Transactional
     public void signup(Signup request) {
@@ -56,11 +53,8 @@ public class UserService {
 
     private LoginResponse createLoginResponse(User user) {
         UserPrincipal userPrincipal = new UserPrincipal(user.getId(), user.getRole());
-        Refresh refresh = Refresh.builder()
-                .userId(user.getId())
-                .token(jwt.createRefresh(userPrincipal))
-                .build();
-        refreshRepository.save(refresh);
-        return new LoginResponse(jwt.create(userPrincipal), refresh.getToken());
+        String token = authenticationProvider.createToken(userPrincipal);
+        String refresh = authenticationProvider.createRefresh(userPrincipal);
+        return new LoginResponse(token, refresh);
     }
 }
