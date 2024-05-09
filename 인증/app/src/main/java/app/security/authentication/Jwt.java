@@ -1,8 +1,8 @@
 package app.security.authentication;
 
 import app.exception.type.UnauthenticatedException;
+import app.security.UserPrincipal;
 import app.security.authorization.Role;
-import app.user.User;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.algorithms.Algorithm;
@@ -40,18 +40,18 @@ public class Jwt {
         this.randomSalt = new Random();
     }
 
-    public String create(User user) {
-        return create(user, TokenType.ACCESS, expirySeconds);
+    public String create(UserPrincipal userPrincipal) {
+        return create(userPrincipal, TokenType.ACCESS, expirySeconds);
     }
 
-    public String createRefresh(User user) {
-        return create(user, TokenType.REFRESH, refreshExpirySeconds);
+    public String createRefresh(UserPrincipal userPrincipal) {
+        return create(userPrincipal, TokenType.REFRESH, refreshExpirySeconds);
     }
 
-    private String create(User user, TokenType type, long expirySeconds) {
+    private String create(UserPrincipal userPrincipal, TokenType type, long expirySeconds) {
         return JWT.create().withIssuer(issuer)
-                .withClaim("userId", user.getId())
-                .withClaim("roleName", user.getRole().name())
+                .withClaim("userId", userPrincipal.getUserId())
+                .withClaim("roleName", userPrincipal.getRole().name())
                 .withClaim("type", type.name())
                 .withClaim("salt", randomSalt.nextInt())
                 .withExpiresAt(Instant.now().plus(expirySeconds, ChronoUnit.SECONDS))

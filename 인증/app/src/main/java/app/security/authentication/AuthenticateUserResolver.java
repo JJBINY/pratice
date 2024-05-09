@@ -3,8 +3,7 @@ package app.security.authentication;
 import app.exception.type.UnauthenticatedException;
 import app.security.Refresh;
 import app.security.RefreshRepository;
-import app.user.User;
-import app.user.UserRepository;
+import app.security.UserPrincipal;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.MethodParameter;
@@ -19,16 +18,15 @@ import static org.apache.commons.lang3.StringUtils.substringAfter;
 @Component
 @RequiredArgsConstructor
 public class AuthenticateUserResolver implements HandlerMethodArgumentResolver {
-    private final UserRepository userRepository;
     private final JwtConfigProps jwtConfigProps;
-    private final RefreshRepository refreshRepository;
     private final Jwt jwt;
+    private final RefreshRepository refreshRepository;
 
     @Override
     public boolean supportsParameter(MethodParameter parameter) {
-        boolean hasLoginAnnotation = parameter.hasParameterAnnotation(AuthenticateUser.class);
-        boolean hasMemberType = User.class.isAssignableFrom(parameter.getParameterType());
-        return hasLoginAnnotation && hasMemberType;
+        boolean hasAnnotation = parameter.hasParameterAnnotation(AuthenticateUser.class);
+        boolean hasType = UserPrincipal.class.isAssignableFrom(parameter.getParameterType());
+        return hasAnnotation && hasType;
     }
 
     @Override
@@ -42,6 +40,6 @@ public class AuthenticateUserResolver implements HandlerMethodArgumentResolver {
         if (!token.equals(refresh.getToken())) {
             throw new UnauthenticatedException();
         }
-        return userRepository.findById(claims.userId()).orElseThrow(() -> new UnauthenticatedException());
+        return new UserPrincipal(claims.userId(), claims.role());
     }
 }

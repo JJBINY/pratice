@@ -1,5 +1,6 @@
 package app.user;
 
+import app.security.UserPrincipal;
 import app.security.authentication.AuthenticateUser;
 import app.security.authorization.RequireAuthority;
 import app.security.authorization.Role;
@@ -37,11 +38,11 @@ public class UserController {
     }
 
     @GetMapping("/refresh")
-    public ResponseEntity<LoginResponse> refresh(@AuthenticateUser User user) {
+    public ResponseEntity<LoginResponse> refresh(@AuthenticateUser UserPrincipal userPrincipal) {
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .contentType(MediaType.APPLICATION_JSON)
-                .body(userService.refresh(user));
+                .body(userService.refresh(userPrincipal));
     }
 
     @GetMapping("/authentication")

@@ -5,6 +5,7 @@ import app.exception.type.UnauthenticatedException;
 import app.security.PasswordEncoder;
 import app.security.Refresh;
 import app.security.RefreshRepository;
+import app.security.UserPrincipal;
 import app.security.authentication.Jwt;
 import app.user.request.Login;
 import app.user.request.Signup;
@@ -46,17 +47,20 @@ public class UserService {
     }
 
     @Transactional
-    public LoginResponse refresh(User user) {
+    public LoginResponse refresh(UserPrincipal userPrincipal) {
+        User user = userRepository.findById(userPrincipal.getUserId())
+                .orElseThrow(() -> new UnauthenticatedException());
         log.info("[REFRESH] userId = {}", user.getId());
         return createLoginResponse(user);
     }
 
     private LoginResponse createLoginResponse(User user) {
+        UserPrincipal userPrincipal = new UserPrincipal(user.getId(), user.getRole());
         Refresh refresh = Refresh.builder()
                 .userId(user.getId())
-                .token(jwt.createRefresh(user))
+                .token(jwt.createRefresh(userPrincipal))
                 .build();
         refreshRepository.save(refresh);
-        return new LoginResponse(jwt.create(user), refresh.getToken());
+        return new LoginResponse(jwt.create(userPrincipal), refresh.getToken());
     }
 }
