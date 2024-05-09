@@ -1,4 +1,4 @@
-package app.user;
+package app.security.authorization;
 
 public enum Role {
     USER("ROLE_USER"), ADMIN("ROLE_ADMIN");

@@ -1,6 +1,7 @@
 package app.user;
 
 import app.common.ApiTest;
+import app.security.authorization.Role;
 import app.user.request.Login;
 import app.user.request.Signup;
 import app.user.response.LoginResponse;
@@ -29,7 +30,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @Slf4j
 @SpringBootTest
 @AutoConfigureMockMvc
-public class AuthControllerTest extends ApiTest {
+public class UserControllerTest extends ApiTest {
 
     @Test
     @DisplayName("회원가입 성공")

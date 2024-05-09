@@ -1,6 +1,6 @@
 package app.fixture;
 
-import app.user.Role;
+import app.security.authorization.Role;
 import app.user.User;
 import app.user.request.Login;
 import app.user.request.Signup;

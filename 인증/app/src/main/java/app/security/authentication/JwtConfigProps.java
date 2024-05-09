@@ -1,4 +1,4 @@
-package app.security;
+package app.security.authentication;
 
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;

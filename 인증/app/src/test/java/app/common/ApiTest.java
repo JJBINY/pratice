@@ -1,7 +1,7 @@
 package app.common;
 
-import app.security.Jwt;
-import app.security.JwtConfigProps;
+import app.security.authentication.Jwt;
+import app.security.authentication.JwtConfigProps;
 import app.user.UserRepository;
 import app.user.request.Login;
 import app.user.request.Signup;
@@ -49,26 +49,26 @@ public class ApiTest {
 
 
     protected ResultActions callSignupApi(Signup request) throws Exception {
-        return mockMvc.perform(post("/api/auth/signup")
+        return mockMvc.perform(post("/api/users/signup")
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request)));
     }
 
     protected ResultActions callLoginApi(Login request) throws Exception {
-        return mockMvc.perform(post("/api/auth/login")
+        return mockMvc.perform(post("/api/users/login")
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request)));
     }
 
     protected ResultActions callAuthenticationApi(String token) throws Exception {
-        return mockMvc.perform(get("/api/auth/authentication")
+        return mockMvc.perform(get("/api/users/authentication")
                 .header(jwtConfigProps.getHeader(), String.join(" ", jwtConfigProps.getScheme(), token)));
     }
 
     protected ResultActions callAuthorizationApi(String token) throws Exception {
-        return mockMvc.perform(get("/api/auth/authorization")
+        return mockMvc.perform(get("/api/users/authorization")
                 .header(jwtConfigProps.getHeader(), String.join(" ", jwtConfigProps.getScheme(), token)));
     }
 
@@ -79,7 +79,7 @@ public class ApiTest {
     }
 
     protected ResultActions callRefreshApi(String refresh) throws Exception {
-         return mockMvc.perform(get("/api/auth/refresh")
+         return mockMvc.perform(get("/api/users/refresh")
                 .header(jwtConfigProps.getRefreshHeader(), String.join(" ", jwtConfigProps.getScheme(), refresh)));
     }
 }

@@ -2,9 +2,8 @@ package app.exception;
 
 import app.exception.type.CustomException;
 import app.exception.type.UnauthenticatedException;
-import app.security.JwtConfigProps;
+import app.security.authentication.JwtConfigProps;
 import lombok.RequiredArgsConstructor;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

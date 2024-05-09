@@ -1,9 +1,8 @@
-package app.security;
+package app.user;
 
+import app.security.authentication.AuthenticateUser;
 import app.security.authorization.RequireAuthority;
-import app.user.Role;
-import app.user.User;
-import app.user.UserService;
+import app.security.authorization.Role;
 import app.user.request.Login;
 import app.user.request.Signup;
 import app.user.response.LoginResponse;
@@ -15,9 +14,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/auth")
+@RequestMapping("/api/users")
 @RequiredArgsConstructor
-public class AuthController {
+public class UserController {
 
     private final UserService userService;
 

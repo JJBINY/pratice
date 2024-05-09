@@ -1,7 +1,7 @@
 package app.common;
 
-import app.security.AuthenticateUserResolver;
-import app.security.JwtAuthenticationInterceptor;
+import app.security.authentication.AuthenticateUserResolver;
+import app.security.authentication.JwtAuthenticationInterceptor;
 import app.security.authorization.AuthorizationInterceptor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Configuration;
@@ -24,16 +24,16 @@ public class WebMvcConfig implements WebMvcConfigurer {
         registry
                 .addInterceptor(jwtAuthenticationInterceptor)
                 .addPathPatterns("/api/**")
-                .excludePathPatterns("/api/auth/signup")
-                .excludePathPatterns("/api/auth/login")
-                .excludePathPatterns("/api/auth/refresh")
+                .excludePathPatterns("/api/users/signup")
+                .excludePathPatterns("/api/users/login")
+                .excludePathPatterns("/api/users/refresh")
                 .order(0);
         registry
                 .addInterceptor(authorizationInterceptor)
                 .addPathPatterns("/api/**")
-                .excludePathPatterns("/api/auth/signup")
-                .excludePathPatterns("/api/auth/login")
-                .excludePathPatterns("/api/auth/refresh")
+                .excludePathPatterns("/api/users/signup")
+                .excludePathPatterns("/api/users/login")
+                .excludePathPatterns("/api/users/refresh")
                 .order(1);
     }
 

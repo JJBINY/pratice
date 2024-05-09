@@ -1,7 +1,6 @@
 package app.security.authorization;
 
 import app.exception.type.UnauthorizedException;
-import app.user.Role;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;

@@ -1,4 +1,4 @@
-package app.security;
+package app.security.authentication;
 
 import app.exception.type.UnauthenticatedException;
 import jakarta.servlet.http.HttpServletRequest;

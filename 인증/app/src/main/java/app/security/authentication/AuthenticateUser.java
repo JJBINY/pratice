@@ -1,4 +1,4 @@
-package app.security;
+package app.security.authentication;
 
 import java.lang.annotation.*;
 

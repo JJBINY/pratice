@@ -3,6 +3,7 @@ package app.user;
 import app.common.BaseTimeEntity;
 import app.exception.type.UnauthenticatedException;
 import app.security.PasswordEncoder;
+import app.security.authorization.Role;
 import app.user.request.Signup;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;

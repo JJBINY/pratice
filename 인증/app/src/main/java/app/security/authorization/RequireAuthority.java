@@ -1,7 +1,5 @@
 package app.security.authorization;
 
-import app.user.Role;
-
 import java.lang.annotation.*;
 
 @Target({ ElementType.TYPE, ElementType.METHOD })

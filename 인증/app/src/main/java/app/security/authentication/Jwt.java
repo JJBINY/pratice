@@ -1,7 +1,7 @@
-package app.security;
+package app.security.authentication;
 
 import app.exception.type.UnauthenticatedException;
-import app.user.Role;
+import app.security.authorization.Role;
 import app.user.User;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.JWTVerifier;

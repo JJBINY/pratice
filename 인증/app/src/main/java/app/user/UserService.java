@@ -2,10 +2,10 @@ package app.user;
 
 import app.exception.type.AlreadyExistsException;
 import app.exception.type.UnauthenticatedException;
-import app.security.Jwt;
 import app.security.PasswordEncoder;
 import app.security.Refresh;
 import app.security.RefreshRepository;
+import app.security.authentication.Jwt;
 import app.user.request.Login;
 import app.user.request.Signup;
 import app.user.response.LoginResponse;
