@@ -2,8 +2,6 @@ package app.user;
 
 import app.security.UserPrincipal;
 import app.security.authentication.AuthenticateUser;
-import app.security.authorization.RequireAuthority;
-import app.security.authorization.Role;
 import app.user.request.Login;
 import app.user.request.Signup;
 import app.user.response.LoginResponse;
@@ -53,7 +51,6 @@ public class UserController {
     }
 
     @GetMapping("/authorization")
-    @RequireAuthority(authorities = {Role.ADMIN})
     public ResponseEntity<String> authorization() {
         return ResponseEntity
                 .status(HttpStatus.OK)
