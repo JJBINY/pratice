@@ -3,7 +3,7 @@ package appsecurity.security.authentication;
 import appsecurity.exception.type.UnauthenticatedException;
 import appsecurity.security.AuthProps;
 import appsecurity.security.UserPrincipal;
-import appsecurity.security.jwt.Jwt;
+import appsecurity.security.jwt.JwtProvider;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.MethodParameter;
@@ -18,7 +18,7 @@ import static org.apache.commons.lang3.StringUtils.substringAfter;
 @Component
 @RequiredArgsConstructor
 public class AuthenticateUserResolver implements HandlerMethodArgumentResolver {
-    private final Jwt jwt;
+    private final JwtProvider jwtProvider;
     private final AuthProps props;
     private final RefreshRepository refreshRepository;
 
@@ -35,7 +35,7 @@ public class AuthenticateUserResolver implements HandlerMethodArgumentResolver {
         HttpServletRequest request = (HttpServletRequest) webRequest.getNativeRequest();
         String refreshHeader = request.getHeader(props.refreshHeader);
         String token = substringAfter(refreshHeader, props.scheme).trim();
-        Jwt.Claims claims = jwt.verify(token, TokenType.REFRESH);
+        JwtProvider.Claims claims = jwtProvider.validate(token, TokenType.REFRESH);
         Refresh refresh = refreshRepository.findByUserId(claims.userId()).orElseThrow(() -> new UnauthenticatedException());
         if (!token.equals(refresh.getToken())) {
             throw new UnauthenticatedException();

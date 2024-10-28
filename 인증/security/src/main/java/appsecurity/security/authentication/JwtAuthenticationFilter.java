@@ -2,7 +2,7 @@ package appsecurity.security.authentication;
 
 
 import appsecurity.security.AuthProps;
-import appsecurity.security.jwt.Jwt;
+import appsecurity.security.jwt.JwtProvider;
 import jakarta.servlet.*;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -23,7 +23,7 @@ import static org.apache.commons.lang3.StringUtils.substringAfter;
 @RequiredArgsConstructor
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private final AuthProps props;
-    private final Jwt jwt;
+    private final JwtProvider jwtProvider;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
@@ -31,7 +31,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         if (token != null) {
             try {
-                Jwt.Claims claims = jwt.verify(token);
+                JwtProvider.Claims claims = jwtProvider.validate(token);
                 //todo 여기서 authorities 포함한 Authentication을 넘겨 줘야 권한 체크 가능
                 Authentication authentication = JwtAuthenticationToken.authenticated(claims.userId(), null, List.of());
                 SecurityContextHolder.getContext().setAuthentication(authentication);

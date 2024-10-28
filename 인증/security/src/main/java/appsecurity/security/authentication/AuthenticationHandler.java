@@ -3,7 +3,7 @@ package appsecurity.security.authentication;
 import appsecurity.exception.type.UnauthenticatedException;
 import appsecurity.security.AuthHandler;
 import appsecurity.security.AuthProps;
-import appsecurity.security.jwt.Jwt;
+import appsecurity.security.jwt.JwtProvider;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -15,7 +15,7 @@ import static org.apache.commons.lang3.StringUtils.substringAfter;
 @RequiredArgsConstructor
 public class AuthenticationHandler implements AuthHandler {
     private final AuthProps props;
-    private final Jwt jwt;
+    private final JwtProvider jwtProvider;
 
     @Override
     public void handle(HttpServletRequest request) {
@@ -24,7 +24,7 @@ public class AuthenticationHandler implements AuthHandler {
             throw new UnauthenticatedException("인증이 필요한 요청입니다.");
         }
         String token = substringAfter(AuthHeader, props.header).trim();
-        Jwt.Claims claims = jwt.verify(token);
+        JwtProvider.Claims claims = jwtProvider.validate(token);
         request.setAttribute("role", claims.role());
     }
 }

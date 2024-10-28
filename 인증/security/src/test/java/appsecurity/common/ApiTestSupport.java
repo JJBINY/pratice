@@ -1,7 +1,7 @@
 package appsecurity.common;
 
 import appsecurity.security.AuthProps;
-import appsecurity.security.jwt.Jwt;
+import appsecurity.security.jwt.JwtProvider;
 import appsecurity.user.controller.dto.LoginRequest;
 import appsecurity.user.controller.dto.LoginResponse;
 import appsecurity.user.controller.dto.SignupRequest;
@@ -37,7 +37,7 @@ public class ApiTestSupport {
     protected AuthProps authProps;
 
     @Autowired
-    protected Jwt jwt;
+    protected JwtProvider jwtProvider;
 
     @Autowired
     CleanUp cleanUp;
