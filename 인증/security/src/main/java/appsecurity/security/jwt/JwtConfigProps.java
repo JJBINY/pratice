@@ -1,4 +1,4 @@
-package appsecurity.security.authentication;
+package appsecurity.security.jwt;
 
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
@@ -15,12 +15,6 @@ import org.springframework.validation.annotation.Validated;
 public class JwtConfigProps {
 
     @NotBlank
-    String header;
-
-    @NotBlank
-    String scheme;
-
-    @NotBlank
     String issuer;
 
     @NotBlank
@@ -29,21 +23,6 @@ public class JwtConfigProps {
     @Min(600) @Max(86400)
     long expirySeconds;
 
-    @NotBlank
-    String refreshHeader;
-
     @Min(129600) @Max(259200)
     long refreshExpirySeconds;
-
-    public String getHeader() {
-        return header;
-    }
-
-    public String getScheme() {
-        return scheme;
-    }
-
-    public String getRefreshHeader() {
-        return refreshHeader;
-    }
 }

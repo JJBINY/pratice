@@ -1,7 +1,8 @@
-package appsecurity.security.authentication;
+package appsecurity.security.jwt;
 
 import appsecurity.exception.type.UnauthenticatedException;
 import appsecurity.security.UserPrincipal;
+import appsecurity.security.authentication.TokenType;
 import appsecurity.security.authorization.Role;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.JWTVerifier;
@@ -10,6 +11,7 @@ import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import lombok.AccessLevel;
 import lombok.Getter;
+import org.springframework.stereotype.Component;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
@@ -22,6 +24,7 @@ import static appsecurity.security.authentication.TokenType.REFRESH;
 /**
  * Reference : https://github.com/auth0/java-jwt/blob/master/EXAMPLES.md
  */
+@Component
 @Getter(value = AccessLevel.PACKAGE)
 public class Jwt {
     private final String issuer;

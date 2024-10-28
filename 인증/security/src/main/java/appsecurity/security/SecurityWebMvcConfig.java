@@ -23,18 +23,18 @@ public class SecurityWebMvcConfig implements WebMvcConfigurer {
     private final AuthorizationHandler authorizationHandler;
     private final AuthenticateUserResolver authenticateUserResolver;
 
-    @Override
-    public void addInterceptors(InterceptorRegistry registry) {
-        registry
-                .addInterceptor(AuthInterceptor.builder(authenticationHandler, authorizationHandler)
-                        .anyMatch()
-                        .include(GET, "/api/users/authorization").hasRole(Role.ADMIN)
-                        .exclude(POST, "/api/users/signup")
-                        .exclude(POST, "/api/users/login")
-                        .exclude(GET, "/api/users/refresh")
-                        .build())
-                .order(0);
-    }
+//    @Override
+//    public void addInterceptors(InterceptorRegistry registry) {
+//        registry
+//                .addInterceptor(AuthInterceptor.builder(authenticationHandler, authorizationHandler)
+//                        .anyMatch()
+//                        .include(GET, "/api/users/authorization").hasRole(Role.ADMIN)
+//                        .exclude(POST, "/api/users/signup")
+//                        .exclude(POST, "/api/users/login")
+//                        .exclude(GET, "/api/users/refresh")
+//                        .build())
+//                .order(0);
+//    }
 
     @Override
     public void addArgumentResolvers(List<HandlerMethodArgumentResolver> resolvers) {

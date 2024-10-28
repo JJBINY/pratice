@@ -1,11 +1,11 @@
 package appsecurity.common;
 
-import appsecurity.security.authentication.Jwt;
-import appsecurity.security.authentication.JwtConfigProps;
-import appsecurity.user.controller.dto.LoginResponse;
-import appsecurity.user.repository.UserRepository;
+import appsecurity.security.AuthProps;
+import appsecurity.security.jwt.Jwt;
 import appsecurity.user.controller.dto.LoginRequest;
+import appsecurity.user.controller.dto.LoginResponse;
 import appsecurity.user.controller.dto.SignupRequest;
+import appsecurity.user.repository.UserRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
@@ -34,7 +34,7 @@ public class ApiTestSupport {
     protected UserRepository userRepository;
 
     @Autowired
-    protected JwtConfigProps jwtConfigProps;
+    protected AuthProps authProps;
 
     @Autowired
     protected Jwt jwt;
@@ -64,12 +64,12 @@ public class ApiTestSupport {
 
     protected ResultActions callAuthenticationApi(String token) throws Exception {
         return mockMvc.perform(get("/api/users/authentication")
-                .header(jwtConfigProps.getHeader(), String.join(" ", jwtConfigProps.getScheme(), token)));
+                .header(authProps.header, String.join(" ", authProps.scheme, token)));
     }
 
     protected ResultActions callAuthorizationApi(String token) throws Exception {
         return mockMvc.perform(get("/api/users/authorization")
-                .header(jwtConfigProps.getHeader(), String.join(" ", jwtConfigProps.getScheme(), token)));
+                .header(authProps.header, String.join(" ", authProps.scheme, token)));
     }
 
     protected LoginResponse callLoginApiAndGetResponse(LoginRequest request) throws Exception {
@@ -80,6 +80,6 @@ public class ApiTestSupport {
 
     protected ResultActions callRefreshApi(String refresh) throws Exception {
          return mockMvc.perform(get("/api/users/refresh")
-                .header(jwtConfigProps.getRefreshHeader(), String.join(" ", jwtConfigProps.getScheme(), refresh)));
+                .header(authProps.refreshHeader, String.join(" ", authProps.scheme, refresh)));
     }
 }

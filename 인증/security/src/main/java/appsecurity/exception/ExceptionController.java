@@ -2,7 +2,7 @@ package appsecurity.exception;
 
 import appsecurity.exception.type.CustomException;
 import appsecurity.exception.type.UnauthenticatedException;
-import appsecurity.security.authentication.JwtConfigProps;
+import appsecurity.security.AuthProps;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -20,7 +20,7 @@ import static org.apache.commons.lang3.StringUtils.joinWith;
 @RequiredArgsConstructor
 public class ExceptionController {
 
-    private final JwtConfigProps jwtConfigProps;
+    private final AuthProps authProps;
 
     @ExceptionHandler({
             BindException.class,
@@ -46,7 +46,7 @@ public class ExceptionController {
 
         return ResponseEntity
                 .status(HttpStatus.UNAUTHORIZED)
-                .header(HttpHeaders.WWW_AUTHENTICATE, joinWith(SPACE, jwtConfigProps.getScheme(), "realm=\"access to the api\""))
+                .header(HttpHeaders.WWW_AUTHENTICATE, joinWith(SPACE, authProps.scheme, "realm=\"access to the api\""))
                 .body(ErrorResponse.builder()
                         .message(e.getMessage())
                         .build());

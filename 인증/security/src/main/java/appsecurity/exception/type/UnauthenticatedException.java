@@ -3,9 +3,9 @@ package appsecurity.exception.type;
 import org.springframework.http.HttpStatus;
 
 public class UnauthenticatedException extends CustomException{
-    private static final String MESSAGE = "인증에 실패하였습니다.";
+    public static final String DEFAULT_MESSAGE = "인증에 실패하였습니다.";
     public UnauthenticatedException() {
-        super(MESSAGE);
+        super(DEFAULT_MESSAGE);
     }
 
     public UnauthenticatedException(String message) {

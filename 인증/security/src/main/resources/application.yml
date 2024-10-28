@@ -22,10 +22,12 @@ spring:
       connect-timeout: 30s
       timeout: 10s
 
-jwt:
+auth:
+  scheme: bearer
   header: Authorization
   refresh-header: Refresh
-  scheme: bearer
+
+jwt:
   issuer: jjbin
   secret: tCfj2cTfEvyAYeA+vJKihHb7t3Tt0NQZeJnvFkPbKtU=
   expiry-seconds: 3600
