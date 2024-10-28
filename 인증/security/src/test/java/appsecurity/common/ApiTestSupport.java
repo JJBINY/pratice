@@ -2,10 +2,10 @@ package appsecurity.common;
 
 import appsecurity.security.authentication.Jwt;
 import appsecurity.security.authentication.JwtConfigProps;
-import appsecurity.user.UserRepository;
-import appsecurity.user.request.LoginRequest;
-import appsecurity.user.request.SignupRequest;
-import appsecurity.user.response.LoginResponse;
+import appsecurity.user.controller.dto.LoginResponse;
+import appsecurity.user.repository.UserRepository;
+import appsecurity.user.controller.dto.LoginRequest;
+import appsecurity.user.controller.dto.SignupRequest;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
@@ -73,8 +73,8 @@ public class ApiTestSupport {
     }
 
     protected LoginResponse callLoginApiAndGetResponse(LoginRequest request) throws Exception {
-        ResultActions loginResult = callLoginApi(request);
-        String json = loginResult.andReturn().getResponse().getContentAsString();
+        ResultActions loginResponse = callLoginApi(request);
+        String json = loginResponse.andReturn().getResponse().getContentAsString();
         return objectMapper.readValue(json, LoginResponse.class);
     }
 

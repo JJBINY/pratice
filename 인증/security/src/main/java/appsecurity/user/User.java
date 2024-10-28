@@ -1,10 +1,8 @@
 package appsecurity.user;
 
+import appsecurity.common.AssertionMessage;
 import appsecurity.common.BaseTimeEntity;
-import appsecurity.exception.type.UnauthenticatedException;
-import appsecurity.security.PasswordEncoder;
 import appsecurity.security.authorization.Role;
-import appsecurity.user.request.SignupRequest;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import lombok.AccessLevel;
@@ -13,6 +11,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
+import org.springframework.util.Assert;
 
 import java.util.Objects;
 
@@ -47,22 +46,7 @@ public class User extends BaseTimeEntity {
     @Enumerated(EnumType.STRING)
     private Role role;
 
-    public static User create(SignupRequest request, PasswordEncoder passwordEncoder) {
-        checkArgument(isNotEmpty(request));
-        checkArgument(isNotEmpty(passwordEncoder));
-
-        User user = User.builder()
-                .email(request.email())
-                .password(passwordEncoder.encode(request.password()))
-                .name(request.name())
-                .build();
-
-        assert (isNotEmpty(user));
-        assert (!user.password.equals(request.password()));
-        return user;
-    }
-
-    @Builder(access = AccessLevel.PROTECTED)
+    @Builder
     private User(String email, String password, String name, Role role) {
         checkArgument(isNotEmpty(email));
         checkArgument(isNotEmpty(password));
@@ -74,19 +58,10 @@ public class User extends BaseTimeEntity {
         this.name = name;
         this.role = (role == null ? Role.USER : role);
 
-        assert (isNotEmpty(this.email));
-        assert (isNotEmpty(this.password));
-        assert (isNotEmpty(this.name));
-        assert (isValidEnum(Role.class, this.role.name())); //todo spring Assert로 교체
-    }
-
-    public void login(String plainPassword, PasswordEncoder passwordEncoder) {
-        checkArgument(isNotEmpty(plainPassword));
-        checkArgument(isNotEmpty(passwordEncoder));
-
-        if (!passwordEncoder.matches(plainPassword, password)) {
-            throw new UnauthenticatedException();
-        }
+        Assert.isTrue(isNotEmpty(this.email), AssertionMessage.NOT_EMPTY);
+        Assert.isTrue(isNotEmpty(this.password), AssertionMessage.NOT_EMPTY);
+        Assert.isTrue(isNotEmpty(this.name), AssertionMessage.NOT_EMPTY);
+        Assert.isTrue(isValidEnum(Role.class, this.role.name()), AssertionMessage.VALID);
     }
 
     public void changeRole(Role role) {

@@ -1,5 +1,6 @@
-package appsecurity.user;
+package appsecurity.user.repository;
 
+import appsecurity.user.User;
 import org.springframework.data.repository.CrudRepository;
 
 import java.util.Optional;
