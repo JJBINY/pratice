@@ -2,8 +2,8 @@ package appsecurity.fixture;
 
 import appsecurity.security.authorization.Role;
 import appsecurity.user.User;
-import appsecurity.user.request.Login;
-import appsecurity.user.request.Signup;
+import appsecurity.user.request.LoginRequest;
+import appsecurity.user.request.SignupRequest;
 
 public class UserFixture extends User{
 
@@ -22,24 +22,24 @@ public class UserFixture extends User{
         return UserFixture.anUserBuilder().build();
     }
 
-    public static Signup.SignupBuilder aSignupRequestBuilder(){
-        return Signup.builder()
+    public static SignupRequest.SignupRequestBuilder aSignupRequestBuilder(){
+        return SignupRequest.builder()
                 .email(DEFAULT_EMAIL)
                 .password(DEFAULT_PASSWORD)
                 .name(DEFAULT_NAME);
     }
 
-    public static Signup aSignupRequest(){
+    public static SignupRequest aSignupRequest(){
         return aSignupRequestBuilder().build();
     }
 
-    public static Login.LoginBuilder aLoginRequestBuilder(){
-        return Login.builder()
+    public static LoginRequest.LoginRequestBuilder aLoginRequestBuilder(){
+        return LoginRequest.builder()
                 .email(DEFAULT_EMAIL)
                 .password(DEFAULT_PASSWORD);
     }
 
-    public static Login aLoginRequest(){
+    public static LoginRequest aLoginRequest(){
         return aLoginRequestBuilder().build();
     }
 }

@@ -3,8 +3,8 @@ package appsecurity.common;
 import appsecurity.security.authentication.Jwt;
 import appsecurity.security.authentication.JwtConfigProps;
 import appsecurity.user.UserRepository;
-import appsecurity.user.request.Login;
-import appsecurity.user.request.Signup;
+import appsecurity.user.request.LoginRequest;
+import appsecurity.user.request.SignupRequest;
 import appsecurity.user.response.LoginResponse;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
@@ -22,7 +22,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 @Slf4j
 @SpringBootTest
 @AutoConfigureMockMvc
-public class ApiTest {
+public class ApiTestSupport {
 
     @Autowired
     protected ObjectMapper objectMapper;
@@ -48,14 +48,14 @@ public class ApiTest {
     }
 
 
-    protected ResultActions callSignupApi(Signup request) throws Exception {
+    protected ResultActions callSignupApi(SignupRequest request) throws Exception {
         return mockMvc.perform(post("/api/users/signup")
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request)));
     }
 
-    protected ResultActions callLoginApi(Login request) throws Exception {
+    protected ResultActions callLoginApi(LoginRequest request) throws Exception {
         return mockMvc.perform(post("/api/users/login")
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
@@ -72,7 +72,7 @@ public class ApiTest {
                 .header(jwtConfigProps.getHeader(), String.join(" ", jwtConfigProps.getScheme(), token)));
     }
 
-    protected LoginResponse callLoginApiAndGetResponse(Login request) throws Exception {
+    protected LoginResponse callLoginApiAndGetResponse(LoginRequest request) throws Exception {
         ResultActions loginResult = callLoginApi(request);
         String json = loginResult.andReturn().getResponse().getContentAsString();
         return objectMapper.readValue(json, LoginResponse.class);

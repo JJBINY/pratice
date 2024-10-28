@@ -4,7 +4,7 @@ import appsecurity.common.BaseTimeEntity;
 import appsecurity.exception.type.UnauthenticatedException;
 import appsecurity.security.PasswordEncoder;
 import appsecurity.security.authorization.Role;
-import appsecurity.user.request.Signup;
+import appsecurity.user.request.SignupRequest;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import lombok.AccessLevel;
@@ -47,7 +47,7 @@ public class User extends BaseTimeEntity {
     @Enumerated(EnumType.STRING)
     private Role role;
 
-    public static User create(Signup request, PasswordEncoder passwordEncoder) {
+    public static User create(SignupRequest request, PasswordEncoder passwordEncoder) {
         checkArgument(isNotEmpty(request));
         checkArgument(isNotEmpty(passwordEncoder));
 
@@ -77,7 +77,7 @@ public class User extends BaseTimeEntity {
         assert (isNotEmpty(this.email));
         assert (isNotEmpty(this.password));
         assert (isNotEmpty(this.name));
-        assert (isValidEnum(Role.class, this.role.name()));
+        assert (isValidEnum(Role.class, this.role.name())); //todo spring Assert로 교체
     }
 
     public void login(String plainPassword, PasswordEncoder passwordEncoder) {

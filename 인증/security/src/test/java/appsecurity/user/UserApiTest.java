@@ -1,9 +1,9 @@
 package appsecurity.user;
 
-import appsecurity.common.ApiTest;
+import appsecurity.common.ApiTestSupport;
 import appsecurity.security.authorization.Role;
-import appsecurity.user.request.Login;
-import appsecurity.user.request.Signup;
+import appsecurity.user.request.LoginRequest;
+import appsecurity.user.request.SignupRequest;
 import appsecurity.user.response.LoginResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.DisplayName;
@@ -30,13 +30,13 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @Slf4j
 @SpringBootTest
 @AutoConfigureMockMvc
-public class UserControllerTest extends ApiTest {
+public class UserApiTest extends ApiTestSupport {
 
     @Test
     @DisplayName("회원가입 성공")
     void signupSuccess() throws Exception {
         // given
-        Signup request = aSignupRequest();
+        SignupRequest request = aSignupRequest();
 
         // when
         ResultActions result = callSignupApi(request);
@@ -55,7 +55,7 @@ public class UserControllerTest extends ApiTest {
     @DisplayName("회원가입 실패 : 이메일 중복")
     void signupFailureWithEmailConflict() throws Exception {
         // given
-        Signup request = aSignupRequest();
+        SignupRequest request = aSignupRequest();
         callSignupApi(request);
 
         // when
@@ -87,7 +87,7 @@ public class UserControllerTest extends ApiTest {
     @DisplayName("회원가입 실패 : 잘못된 입력 데이터")
     void signupFailureWithWrongData(String email, String password, String name) throws Exception {
         // given
-        Signup request = Signup.builder()
+        SignupRequest request = SignupRequest.builder()
                 .email(email)
                 .password(password)
                 .name(name)
@@ -107,7 +107,7 @@ public class UserControllerTest extends ApiTest {
     void loginSuccess() throws Exception {
         // given
         callSignupApi(aSignupRequest());
-        Login request = aLoginRequest();
+        LoginRequest request = aLoginRequest();
 
         // when
         ResultActions result = callLoginApi(request);
@@ -122,9 +122,9 @@ public class UserControllerTest extends ApiTest {
     }
 
     static Stream<Arguments> loginFailureWithWrongData() {
-        Signup signup = aSignupRequest();
-        String email = signup.email();
-        String password = signup.password();
+        SignupRequest signupRequest = aSignupRequest();
+        String email = signupRequest.email();
+        String password = signupRequest.password();
         return Stream.of(
                 Arguments.of("wrong" + email, password),
                 Arguments.of(email, "wrong" + password)
@@ -137,7 +137,7 @@ public class UserControllerTest extends ApiTest {
     void loginFailureWithWrongData(String email, String password) throws Exception {
         // given
         callSignupApi(aSignupRequest());
-        Login request = aLoginRequestBuilder()
+        LoginRequest request = aLoginRequestBuilder()
                 .email(email)
                 .password(password)
                 .build();

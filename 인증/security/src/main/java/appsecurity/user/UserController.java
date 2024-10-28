@@ -2,8 +2,8 @@ package appsecurity.user;
 
 import appsecurity.security.UserPrincipal;
 import appsecurity.security.authentication.AuthenticateUser;
-import appsecurity.user.request.Login;
-import appsecurity.user.request.Signup;
+import appsecurity.user.request.LoginRequest;
+import appsecurity.user.request.SignupRequest;
 import appsecurity.user.response.LoginResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -20,7 +20,7 @@ public class UserController {
     private final UserService userService;
 
     @PostMapping("/signup")
-    public ResponseEntity<Object> signup(@RequestBody @Valid Signup request) {
+    public ResponseEntity<Object> signup(@RequestBody @Valid SignupRequest request) {
         userService.signup(request);
         return ResponseEntity
                 .status(HttpStatus.NO_CONTENT)
@@ -28,7 +28,7 @@ public class UserController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<LoginResponse> login(@RequestBody @Valid Login request) {
+    public ResponseEntity<LoginResponse> login(@RequestBody @Valid LoginRequest request) {
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .contentType(MediaType.APPLICATION_JSON)

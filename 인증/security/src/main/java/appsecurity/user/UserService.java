@@ -5,8 +5,8 @@ import appsecurity.exception.type.UnauthenticatedException;
 import appsecurity.security.PasswordEncoder;
 import appsecurity.security.UserPrincipal;
 import appsecurity.security.authentication.AuthenticationProvider;
-import appsecurity.user.request.Login;
-import appsecurity.user.request.Signup;
+import appsecurity.user.request.LoginRequest;
+import appsecurity.user.request.SignupRequest;
 import appsecurity.user.response.LoginResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -26,7 +26,7 @@ public class UserService {
     private final AuthenticationProvider authenticationProvider;
 
     @Transactional
-    public void signup(Signup request) {
+    public void signup(SignupRequest request) {
         Optional<User> userOptional = userRepository.findByEmail(request.email());
         if (userOptional.isPresent()) {
             throw new AlreadyExistsException();
@@ -35,7 +35,7 @@ public class UserService {
     }
 
     @Transactional
-    public LoginResponse login(Login request) {
+    public LoginResponse login(LoginRequest request) {
         User user = userRepository.findByEmail(request.email())
                 .orElseThrow(() -> new UnauthenticatedException());
         user.login(request.password(), passwordEncoder);

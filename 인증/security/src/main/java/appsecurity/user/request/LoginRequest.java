@@ -5,5 +5,5 @@ import jakarta.validation.constraints.NotBlank;
 import lombok.Builder;
 
 @Builder
-public record Login(@Email @NotBlank String email, @NotBlank String password) {
+public record LoginRequest(@Email @NotBlank String email, @NotBlank String password) {
 }
