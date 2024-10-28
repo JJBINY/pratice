@@ -63,8 +63,9 @@ public class UserApiTest extends ApiTestSupport {
 
         // then
         result.andDo(print())
-                .andExpect(status().isConflict())
-                .andExpect(jsonPath("$.message").exists());
+                .andExpectAll(
+                        status().isConflict(),
+                        jsonPath("$.message").exists());
     }
 
 
@@ -98,8 +99,9 @@ public class UserApiTest extends ApiTestSupport {
 
         // then
         result.andDo(print())
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.message").exists());
+                .andExpectAll(
+                        status().isBadRequest(),
+                        jsonPath("$.message").exists());
     }
 
     @Test
@@ -114,11 +116,12 @@ public class UserApiTest extends ApiTestSupport {
 
         // then
         result.andDo(print())
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.token").exists())
-                .andExpect(jsonPath("$.token").isString())
-                .andExpect(jsonPath("$.refresh").exists())
-                .andExpect(jsonPath("$.refresh").isString());
+                .andExpectAll(
+                        status().isOk(),
+                        jsonPath("$.token").exists(),
+                        jsonPath("$.token").isString(),
+                        jsonPath("$.refresh").exists(),
+                        jsonPath("$.refresh").isString());
     }
 
     static Stream<Arguments> loginFailureWithWrongData() {
@@ -147,8 +150,9 @@ public class UserApiTest extends ApiTestSupport {
 
         // then
         result.andDo(print())
-                .andExpect(status().isUnauthorized())
-                .andExpect(jsonPath("$.message").exists());
+                .andExpectAll(
+                        status().isUnauthorized(),
+                        jsonPath("$.message").exists());
     }
 
     @Test
@@ -177,8 +181,9 @@ public class UserApiTest extends ApiTestSupport {
 
         // then
         result.andDo(print())
-                .andExpect(status().isUnauthorized())
-                .andExpect(jsonPath("$.message").exists());
+                .andExpectAll(
+                        status().isUnauthorized(),
+                        jsonPath("$.message").exists());
     }
 
     @Test
@@ -211,8 +216,9 @@ public class UserApiTest extends ApiTestSupport {
 
         // then
         result.andDo(print())
-                .andExpect(status().isForbidden())
-                .andExpect(jsonPath("$.message").exists());
+                .andExpectAll(
+                        status().isForbidden(),
+                        jsonPath("$.message").exists());
     }
 
     @Test
@@ -221,38 +227,40 @@ public class UserApiTest extends ApiTestSupport {
         // given
         callSignupApi(aSignupRequest());
         LoginResponse loginResponse = callLoginApiAndGetResponse(aLoginRequest());
-        String token = loginResponse.token();
-        String refresh = loginResponse.refresh();
+        String oldToken = loginResponse.token();
+        String oldRefresh = loginResponse.refresh();
 
         // when
-        ResultActions result = callRefreshApi(refresh);
+        ResultActions result = callRefreshApi(oldRefresh);
 
         // then
         result.andDo(print())
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.token").exists())
-                .andExpect(jsonPath("$.token").isString())
-                .andExpect(jsonPath("$.token").value(not(token)))
-                .andExpect(jsonPath("$.refresh").exists())
-                .andExpect(jsonPath("$.refresh").isString())
-                .andExpect(jsonPath("$.refresh").value(not(refresh)));
+                .andExpectAll(
+                        status().isOk(),
+                        jsonPath("$.token").exists(),
+                        jsonPath("$.token").isString(),
+                        jsonPath("$.token").value(not(oldToken)),
+                        jsonPath("$.refresh").exists(),
+                        jsonPath("$.refresh").isString(),
+                        jsonPath("$.refresh").value(not(oldRefresh)));
     }
 
     @ParameterizedTest
     @NullSource
-    @ValueSource(strings = {"wrong_refresh_token","","  "})
+    @ValueSource(strings = {"wrong_refresh_token", "", "  "})
     @DisplayName("리프래시 실패 : 유효하지 않은 토큰 사용")
     void refreshFailure(Object source) throws Exception {
         // given
-        String refresh = (String)source;
+        String refresh = (String) source;
 
         // when
         ResultActions result = callRefreshApi(refresh);
 
         // then
         result.andDo(print())
-                .andExpect(status().isUnauthorized())
-                .andExpect(jsonPath("$.message").exists());
+                .andExpectAll(
+                        status().isUnauthorized(),
+                        jsonPath("$.message").exists());
     }
 
     @Test
@@ -261,14 +269,15 @@ public class UserApiTest extends ApiTestSupport {
         // given
         callSignupApi(aSignupRequest());
         String oldRefresh = callLoginApiAndGetResponse(aLoginRequest()).refresh();
-        String refresh = callLoginApiAndGetResponse(aLoginRequest()).refresh();
+        callLoginApiAndGetResponse(aLoginRequest()).refresh();
 
         // when
         ResultActions result = callRefreshApi(oldRefresh);
 
         // then
         result.andDo(print())
-                .andExpect(status().isUnauthorized())
-                .andExpect(jsonPath("$.message").exists());
+                .andExpectAll(
+                        status().isUnauthorized(),
+                        jsonPath("$.message").exists());
     }
 }
