@@ -85,3 +85,9 @@ projectName.iml
 *.DS_Store
 /local.properties
 target/
+
+# MAC OS
+.DS_Store
+._.DS_Store
+**/.DS_Store
+**/._.DS_Store
