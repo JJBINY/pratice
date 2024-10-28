@@ -1,4 +1,4 @@
-package appsecurity.security;
+package appsecurity.security.config;
 
 import jakarta.validation.constraints.NotBlank;
 import lombok.Setter;

@@ -1,4 +1,4 @@
-package appsecurity.security;
+package appsecurity.common;
 
 import org.mindrot.jbcrypt.BCrypt;
 import org.springframework.stereotype.Component;

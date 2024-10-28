@@ -1,4 +1,4 @@
-package appsecurity.user.controller.dto;
+package appsecurity.security.controller.dto;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;

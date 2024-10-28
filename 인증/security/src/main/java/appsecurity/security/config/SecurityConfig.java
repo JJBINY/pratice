@@ -1,4 +1,4 @@
-package appsecurity.security;
+package appsecurity.security.config;
 
 import appsecurity.security.authentication.JwtAuthenticationFilter;
 import appsecurity.security.handler.EntryPoint401Handler;
@@ -14,7 +14,6 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
-import static org.springframework.http.HttpMethod.GET;
 import static org.springframework.http.HttpMethod.POST;
 
 @Configuration
@@ -30,9 +29,10 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
+//                        .requestMatchers(GET, "/api/auth/**").permitAll()
+//                        .requestMatchers(POST, "/api/auth/**").permitAll()
+                        .requestMatchers( "/api/auth/**").permitAll()
                         .requestMatchers(POST, "/api/users/signup").permitAll()
-                        .requestMatchers(POST, "/api/users/login").permitAll()
-                        .requestMatchers(GET, "/api/users/refresh").permitAll()
                         .anyRequest().authenticated()
                 )
                 .exceptionHandling(eh->eh
@@ -43,10 +43,10 @@ public class SecurityConfig {
         return http.build();
     }
 
-    @Bean
-    public WebSecurityCustomizer webSecurityCustomizer() {
-        return (web) -> web.ignoring()
-                // Spring Security should completely ignore URLs starting with /resources/
-                .requestMatchers("/resources/**");
-    }
+//    @Bean
+//    public WebSecurityCustomizer webSecurityCustomizer() {
+//        return (web) -> web.ignoring()
+//                // Spring Security should completely ignore URLs starting with /resources/
+//                .requestMatchers("/resources/**");
+//    }
 }

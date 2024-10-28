@@ -2,7 +2,7 @@ package appsecurity.exception;
 
 import appsecurity.exception.type.CustomException;
 import appsecurity.exception.type.UnauthenticatedException;
-import appsecurity.security.AuthProps;
+import appsecurity.security.config.AuthProps;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;

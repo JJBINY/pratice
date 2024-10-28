@@ -1,7 +1,7 @@
 package appsecurity.security.authentication;
 
 import appsecurity.exception.type.UnauthenticatedException;
-import appsecurity.security.AuthProps;
+import appsecurity.security.config.AuthProps;
 import appsecurity.security.UserPrincipal;
 import appsecurity.security.jwt.JwtProvider;
 import jakarta.servlet.http.HttpServletRequest;

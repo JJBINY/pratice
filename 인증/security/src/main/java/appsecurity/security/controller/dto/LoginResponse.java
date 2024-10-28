@@ -1,4 +1,4 @@
-package appsecurity.user.controller.dto;
+package appsecurity.security.controller.dto;
 
 import lombok.Builder;
 

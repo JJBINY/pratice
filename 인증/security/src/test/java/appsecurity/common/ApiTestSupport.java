@@ -1,9 +1,9 @@
 package appsecurity.common;
 
-import appsecurity.security.AuthProps;
+import appsecurity.security.config.AuthProps;
 import appsecurity.security.jwt.JwtProvider;
-import appsecurity.user.controller.dto.LoginRequest;
-import appsecurity.user.controller.dto.LoginResponse;
+import appsecurity.security.controller.dto.LoginRequest;
+import appsecurity.security.controller.dto.LoginResponse;
 import appsecurity.user.controller.dto.SignupRequest;
 import appsecurity.user.repository.UserRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -56,10 +56,21 @@ public class ApiTestSupport {
     }
 
     protected ResultActions callLoginApi(LoginRequest request) throws Exception {
-        return mockMvc.perform(post("/api/users/login")
+        return mockMvc.perform(post("/api/auth/login")
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request)));
+    }
+
+    protected LoginResponse callLoginApiAndGetResponse(LoginRequest request) throws Exception {
+        ResultActions loginResponse = callLoginApi(request);
+        String json = loginResponse.andReturn().getResponse().getContentAsString();
+        return objectMapper.readValue(json, LoginResponse.class);
+    }
+
+    protected ResultActions callRefreshApi(String refresh) throws Exception {
+        return mockMvc.perform(get("/api/auth/refresh")
+                .header(authProps.refreshHeader, String.join(" ", authProps.scheme, refresh)));
     }
 
     protected ResultActions callAuthenticationApi(String token) throws Exception {
@@ -70,16 +81,5 @@ public class ApiTestSupport {
     protected ResultActions callAuthorizationApi(String token) throws Exception {
         return mockMvc.perform(get("/api/users/authorization")
                 .header(authProps.header, String.join(" ", authProps.scheme, token)));
-    }
-
-    protected LoginResponse callLoginApiAndGetResponse(LoginRequest request) throws Exception {
-        ResultActions loginResponse = callLoginApi(request);
-        String json = loginResponse.andReturn().getResponse().getContentAsString();
-        return objectMapper.readValue(json, LoginResponse.class);
-    }
-
-    protected ResultActions callRefreshApi(String refresh) throws Exception {
-         return mockMvc.perform(get("/api/users/refresh")
-                .header(authProps.refreshHeader, String.join(" ", authProps.scheme, refresh)));
     }
 }

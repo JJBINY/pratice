@@ -2,7 +2,7 @@ package appsecurity.fixture;
 
 import appsecurity.security.authorization.Role;
 import appsecurity.user.User;
-import appsecurity.user.controller.dto.LoginRequest;
+import appsecurity.security.controller.dto.LoginRequest;
 import appsecurity.user.controller.dto.SignupRequest;
 
 public class UserFixture extends User{

@@ -1,4 +1,4 @@
-package appsecurity.user.service.dto;
+package appsecurity.security.service.dto;
 
 public record LoginResult(String token, String refresh) {
 }

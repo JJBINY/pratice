@@ -1,7 +1,7 @@
 package appsecurity.security.authentication;
 
 
-import appsecurity.security.AuthProps;
+import appsecurity.security.config.AuthProps;
 import appsecurity.security.jwt.JwtProvider;
 import jakarta.servlet.*;
 import jakarta.servlet.http.HttpServletRequest;
