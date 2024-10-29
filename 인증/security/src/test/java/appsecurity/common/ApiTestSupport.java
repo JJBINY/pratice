@@ -1,9 +1,9 @@
 package appsecurity.common;
 
-import appsecurity.security.config.AuthProps;
-import appsecurity.security.jwt.JwtProvider;
-import appsecurity.security.controller.dto.LoginRequest;
-import appsecurity.security.controller.dto.AuthResponse;
+import appsecurity.auth.config.AuthProps;
+import appsecurity.auth.jwt.JwtProvider;
+import appsecurity.auth.controller.dto.LoginRequest;
+import appsecurity.auth.controller.dto.AuthResponse;
 import appsecurity.user.controller.dto.SignupRequest;
 import appsecurity.user.repository.UserRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;

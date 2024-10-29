@@ -1,9 +1,9 @@
 package appsecurity.user;
 
 import appsecurity.common.ApiTestSupport;
-import appsecurity.security.authorization.Role;
-import appsecurity.security.controller.dto.LoginRequest;
-import appsecurity.security.controller.dto.AuthResponse;
+import appsecurity.auth.Role;
+import appsecurity.auth.controller.dto.LoginRequest;
+import appsecurity.auth.controller.dto.AuthResponse;
 import appsecurity.user.controller.dto.SignupRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.DisplayName;

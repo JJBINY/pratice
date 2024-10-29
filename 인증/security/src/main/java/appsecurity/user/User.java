@@ -2,7 +2,7 @@ package appsecurity.user;
 
 import appsecurity.common.AssertionMessage;
 import appsecurity.common.BaseTimeEntity;
-import appsecurity.security.authorization.Role;
+import appsecurity.auth.Role;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import lombok.AccessLevel;
