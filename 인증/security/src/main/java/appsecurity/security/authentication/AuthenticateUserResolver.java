@@ -1,8 +1,9 @@
 package appsecurity.security.authentication;
 
 import appsecurity.exception.type.UnauthenticatedException;
-import appsecurity.security.config.AuthProps;
+import appsecurity.security.AuthTokenRepository;
 import appsecurity.security.UserPrincipal;
+import appsecurity.security.config.AuthProps;
 import appsecurity.security.jwt.JwtProvider;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
@@ -19,8 +20,8 @@ import static org.apache.commons.lang3.StringUtils.substringAfter;
 @RequiredArgsConstructor
 public class AuthenticateUserResolver implements HandlerMethodArgumentResolver {
     private final JwtProvider jwtProvider;
-    private final AuthProps props;
-    private final RefreshRepository refreshRepository;
+    private final AuthProps authProps;
+    private final AuthTokenRepository authTokenRepository;
 
     @Override
     public boolean supportsParameter(MethodParameter parameter) {
@@ -31,15 +32,16 @@ public class AuthenticateUserResolver implements HandlerMethodArgumentResolver {
 
     @Override
     public Object resolveArgument(MethodParameter parameter, ModelAndViewContainer mavContainer, NativeWebRequest webRequest, WebDataBinderFactory binderFactory) throws Exception {
-
         HttpServletRequest request = (HttpServletRequest) webRequest.getNativeRequest();
-        String refreshHeader = request.getHeader(props.refreshHeader);
-        String token = substringAfter(refreshHeader, props.scheme).trim();
+        String refreshHeader = request.getHeader(authProps.refreshHeader);
+        String token = substringAfter(refreshHeader, authProps.scheme).trim();
         JwtProvider.Claims claims = jwtProvider.validate(token, TokenType.REFRESH);
-        Refresh refresh = refreshRepository.findByUserId(claims.userId()).orElseThrow(() -> new UnauthenticatedException());
-        if (!token.equals(refresh.getToken())) {
-            throw new UnauthenticatedException();
-        }
+
+        //todo blacklist로 변경
+        authTokenRepository.findByUserId(claims.userId())
+                .orElseThrow(() -> new UnauthenticatedException())
+                .validate(token, ()->new UnauthenticatedException());
+
         return new UserPrincipal(claims.userId(), claims.role());
     }
 }

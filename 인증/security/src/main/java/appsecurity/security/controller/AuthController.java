@@ -4,7 +4,7 @@ import appsecurity.security.service.AuthService;
 import appsecurity.security.UserPrincipal;
 import appsecurity.security.authentication.AuthenticateUser;
 import appsecurity.security.controller.dto.LoginRequest;
-import appsecurity.security.controller.dto.LoginResponse;
+import appsecurity.security.controller.dto.AuthResponse;
 import appsecurity.security.service.dto.Login;
 import appsecurity.security.service.dto.LoginResult;
 import jakarta.validation.Valid;
@@ -24,7 +24,7 @@ public class AuthController {
     private final AuthService authService;
 
     @PostMapping("/login")
-    public ResponseEntity<LoginResponse> login(@RequestBody @Valid LoginRequest request) {
+    public ResponseEntity<AuthResponse> login(@RequestBody @Valid LoginRequest request) {
         LoginResult result = authService.login(Login.builder()
                 .email(request.email())
                 .password(request.password())
@@ -33,22 +33,22 @@ public class AuthController {
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .contentType(MediaType.APPLICATION_JSON)
-                .body(LoginResponse.builder()
-                        .token(result.token())
-                        .refresh(result.refresh())
+                .body(AuthResponse.builder()
+                        .accessToken(result.token())
+                        .refreshToken(result.refresh())
                         .build());
     }
 
     @GetMapping("/refresh")
-    public ResponseEntity<LoginResponse> refresh(@AuthenticateUser UserPrincipal userPrincipal) {
+    public ResponseEntity<AuthResponse> refresh(@AuthenticateUser UserPrincipal userPrincipal) {
         LoginResult result = authService.refresh(userPrincipal);
 
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .contentType(MediaType.APPLICATION_JSON)
-                .body(LoginResponse.builder()
-                        .token(result.token())
-                        .refresh(result.refresh())
+                .body(AuthResponse.builder()
+                        .accessToken(result.token())
+                        .refreshToken(result.refresh())
                         .build());
     }
 }

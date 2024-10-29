@@ -3,5 +3,5 @@ package appsecurity.security.controller.dto;
 import lombok.Builder;
 
 @Builder
-public record LoginResponse(String token, String refresh) {
+public record AuthResponse(String accessToken, String refreshToken) {
 }

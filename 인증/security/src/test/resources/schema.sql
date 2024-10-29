@@ -12,7 +12,7 @@ create table users
     primary key (id)
 );
 
-create table refreshes
+create table auth_tokens
 (
     user_id    bigint       not null,
     token      varchar(1000),

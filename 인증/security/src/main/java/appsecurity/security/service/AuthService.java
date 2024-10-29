@@ -47,8 +47,10 @@ public class AuthService {
 
     private LoginResult createLoginResponse(User user) {
         UserPrincipal userPrincipal = new UserPrincipal(user.getId(), user.getRole());
-        String token = authenticationProvider.createToken(userPrincipal);
-        String refresh = authenticationProvider.createRefresh(userPrincipal);
+        String token = authenticationProvider.generateToken(userPrincipal);
+        String refresh = authenticationProvider.generateRefresh(userPrincipal);
         return new LoginResult(token, refresh);
     }
+
+    // todo logout
 }

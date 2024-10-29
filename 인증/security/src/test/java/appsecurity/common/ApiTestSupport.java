@@ -3,7 +3,7 @@ package appsecurity.common;
 import appsecurity.security.config.AuthProps;
 import appsecurity.security.jwt.JwtProvider;
 import appsecurity.security.controller.dto.LoginRequest;
-import appsecurity.security.controller.dto.LoginResponse;
+import appsecurity.security.controller.dto.AuthResponse;
 import appsecurity.user.controller.dto.SignupRequest;
 import appsecurity.user.repository.UserRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -62,10 +62,10 @@ public class ApiTestSupport {
                 .content(objectMapper.writeValueAsString(request)));
     }
 
-    protected LoginResponse callLoginApiAndGetResponse(LoginRequest request) throws Exception {
+    protected AuthResponse callLoginApiAndGetResponse(LoginRequest request) throws Exception {
         ResultActions loginResponse = callLoginApi(request);
         String json = loginResponse.andReturn().getResponse().getContentAsString();
-        return objectMapper.readValue(json, LoginResponse.class);
+        return objectMapper.readValue(json, AuthResponse.class);
     }
 
     protected ResultActions callRefreshApi(String refresh) throws Exception {

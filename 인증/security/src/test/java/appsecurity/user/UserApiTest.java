@@ -3,7 +3,7 @@ package appsecurity.user;
 import appsecurity.common.ApiTestSupport;
 import appsecurity.security.authorization.Role;
 import appsecurity.security.controller.dto.LoginRequest;
-import appsecurity.security.controller.dto.LoginResponse;
+import appsecurity.security.controller.dto.AuthResponse;
 import appsecurity.user.controller.dto.SignupRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.DisplayName;
@@ -118,10 +118,10 @@ public class UserApiTest extends ApiTestSupport {
         result.andDo(print())
                 .andExpectAll(
                         status().isOk(),
-                        jsonPath("$.token").exists(),
-                        jsonPath("$.token").isString(),
-                        jsonPath("$.refresh").exists(),
-                        jsonPath("$.refresh").isString());
+                        jsonPath("$.accessToken").exists(),
+                        jsonPath("$.accessToken").isString(),
+                        jsonPath("$.refreshToken").exists(),
+                        jsonPath("$.refreshToken").isString());
     }
 
     static Stream<Arguments> loginFailureWithWrongData() {
@@ -160,10 +160,10 @@ public class UserApiTest extends ApiTestSupport {
     void authenticationSuccess() throws Exception {
         // given
         callSignupApi(aSignupRequest());
-        String token = callLoginApiAndGetResponse(aLoginRequest()).token();
+        String accessToken = callLoginApiAndGetResponse(aLoginRequest()).accessToken();
 
         // when
-        ResultActions result = callAuthenticationApi(token);
+        ResultActions result = callAuthenticationApi(accessToken);
 
         // then
         result.andDo(print())
@@ -194,7 +194,7 @@ public class UserApiTest extends ApiTestSupport {
         User user = userRepository.findByEmail(aSignupRequest().email()).get();
         user.changeRole(Role.ADMIN);
         userRepository.save(user);
-        String token = callLoginApiAndGetResponse(aLoginRequest()).token();
+        String token = callLoginApiAndGetResponse(aLoginRequest()).accessToken();
 
         // when
         ResultActions result = callAuthorizationApi(token);
@@ -209,7 +209,7 @@ public class UserApiTest extends ApiTestSupport {
     void authorizationFailure() throws Exception {
         // given
         callSignupApi(aSignupRequest());
-        String token = callLoginApiAndGetResponse(aLoginRequest()).token();
+        String token = callLoginApiAndGetResponse(aLoginRequest()).accessToken();
 
         // when
         ResultActions result = callAuthorizationApi(token);
@@ -226,9 +226,9 @@ public class UserApiTest extends ApiTestSupport {
     void refreshSuccess() throws Exception {
         // given
         callSignupApi(aSignupRequest());
-        LoginResponse loginResponse = callLoginApiAndGetResponse(aLoginRequest());
-        String oldToken = loginResponse.token();
-        String oldRefresh = loginResponse.refresh();
+        AuthResponse authResponse = callLoginApiAndGetResponse(aLoginRequest());
+        String oldToken = authResponse.accessToken();
+        String oldRefresh = authResponse.refreshToken();
 
         // when
         ResultActions result = callRefreshApi(oldRefresh);
@@ -237,12 +237,12 @@ public class UserApiTest extends ApiTestSupport {
         result.andDo(print())
                 .andExpectAll(
                         status().isOk(),
-                        jsonPath("$.token").exists(),
-                        jsonPath("$.token").isString(),
-                        jsonPath("$.token").value(not(oldToken)),
-                        jsonPath("$.refresh").exists(),
-                        jsonPath("$.refresh").isString(),
-                        jsonPath("$.refresh").value(not(oldRefresh)));
+                        jsonPath("$.accessToken").exists(),
+                        jsonPath("$.accessToken").isString(),
+                        jsonPath("$.accessToken").value(not(oldToken)),
+                        jsonPath("$.refreshToken").exists(),
+                        jsonPath("$.refreshToken").isString(),
+                        jsonPath("$.refreshToken").value(not(oldRefresh)));
     }
 
     @ParameterizedTest
@@ -268,8 +268,8 @@ public class UserApiTest extends ApiTestSupport {
     void refreshFailureWithOldToken() throws Exception {
         // given
         callSignupApi(aSignupRequest());
-        String oldRefresh = callLoginApiAndGetResponse(aLoginRequest()).refresh();
-        callLoginApiAndGetResponse(aLoginRequest()).refresh();
+        String oldRefresh = callLoginApiAndGetResponse(aLoginRequest()).refreshToken();
+        callLoginApiAndGetResponse(aLoginRequest()).refreshToken();
 
         // when
         ResultActions result = callRefreshApi(oldRefresh);
