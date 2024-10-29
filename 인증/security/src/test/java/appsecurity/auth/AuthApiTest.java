@@ -2,11 +2,13 @@ package appsecurity.auth;
 
 import appsecurity.auth.controller.dto.AuthResponse;
 import appsecurity.auth.controller.dto.LoginRequest;
+import appsecurity.auth.jwt.JwtProvider;
 import appsecurity.common.ApiTestSupport;
 import appsecurity.user.User;
 import appsecurity.user.controller.dto.SignupRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -29,55 +31,128 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest
 @AutoConfigureMockMvc
 public class AuthApiTest extends ApiTestSupport {
-    @Test
-    @DisplayName("로그인 성공")
-    void loginSuccess() throws Exception {
-        // given
-        callSignupApi(aSignupRequest());
-        LoginRequest request = aLoginRequest();
 
-        // when
-        ResultActions result = callLoginApi(request);
+    @Nested
+    @DisplayName("로그인 API")
+    class Login {
+        @Test
+        @DisplayName("요청이 성공하면 AccessToken과 RefreshToken이 발급된다")
+        void success() throws Exception {
+            // given
+            callSignupApi(aSignupRequest());
+            LoginRequest request = aLoginRequest();
 
-        // then
-        result.andDo(print())
-                .andExpectAll(
-                        status().isOk(),
-                        jsonPath("$.accessToken").exists(),
-                        jsonPath("$.accessToken").isString(),
-                        jsonPath("$.refreshToken").exists(),
-                        jsonPath("$.refreshToken").isString());
-    }
+            // when
+            ResultActions result = callLoginApi(request);
 
-    static Stream<Arguments> loginFailureWithWrongData() {
-        SignupRequest signupRequest = aSignupRequest();
-        String email = signupRequest.email();
-        String password = signupRequest.password();
-        return Stream.of(
-                Arguments.of("wrong" + email, password),
-                Arguments.of(email, "wrong" + password)
-        );
-    }
+            // then
+            result.andExpectAll(
+                    status().isOk(),
+                    jsonPath("$.accessToken").exists(),
+                    jsonPath("$.accessToken").isString(),
+                    jsonPath("$.refreshToken").exists(),
+                    jsonPath("$.refreshToken").isString());
+        }
 
-    @ParameterizedTest
-    @MethodSource
-    @DisplayName("로그인 실패 : 이메일 또는 비밀번호가 올바르지 않음")
-    void loginFailureWithWrongData(String email, String password) throws Exception {
-        // given
-        callSignupApi(aSignupRequest());
-        LoginRequest request = aLoginRequestBuilder()
-                .email(email)
-                .password(password)
-                .build();
+        @Nested
+        @DisplayName("요청이 실패한다")
+        class Failure {
+            static Stream<Arguments> loginFailureWithWrongData() {
+                SignupRequest signupRequest = aSignupRequest();
+                String email = signupRequest.email();
+                String password = signupRequest.password();
+                return Stream.of(
+                        Arguments.of("wrong" + email, password),
+                        Arguments.of(email, "wrong" + password)
+                );
+            }
 
-        // when
-        ResultActions result = callLoginApi(request);
+            @ParameterizedTest
+            @MethodSource
+            @DisplayName("이메일 또는 비밀번호가 일치하는 유저가 없는 경우")
+            void loginFailureWithWrongData(String email, String password) throws Exception {
+                // given
+                callSignupApi(aSignupRequest());
+                LoginRequest request = aLoginRequestBuilder()
+                        .email(email)
+                        .password(password)
+                        .build();
 
-        // then
-        result.andDo(print())
-                .andExpectAll(
+                // when
+                ResultActions result = callLoginApi(request);
+
+                // then
+                result.andExpectAll(
                         status().isUnauthorized(),
                         jsonPath("$.message").exists());
+            }
+        }
+    }
+
+    @Nested
+    @DisplayName("엑세스 토큰 리프래시 API")
+    class Refresh {
+        @Test
+        @DisplayName("요청이 성공하면 새로운 AccessToken과 RefreshToken을 발급받는다")
+        void refreshSuccess() throws Exception {
+            // given
+            callSignupApi(aSignupRequest());
+            AuthResponse authResponse = callLoginApiAndGetResponse(aLoginRequest());
+            String oldToken = authResponse.accessToken();
+            String oldRefresh = authResponse.refreshToken();
+
+            // when
+            ResultActions result = callRefreshApi(oldRefresh);
+
+            // then
+            result.andExpectAll(
+                    status().isOk(),
+                    jsonPath("$.accessToken").exists(),
+                    jsonPath("$.accessToken").isString(),
+                    jsonPath("$.accessToken").value(not(oldToken)),
+                    jsonPath("$.refreshToken").exists(),
+                    jsonPath("$.refreshToken").isString(),
+                    jsonPath("$.refreshToken").value(not(oldRefresh)));
+        }
+
+        @Nested
+        @DisplayName("요청이 실패한다")
+        class Failure {
+            @ParameterizedTest
+            @NullSource
+            @ValueSource(strings = {"wrong_refresh_token", "", "  "})
+            @DisplayName("유효하지 않은 RefreshToken을 사용한 경우")
+            void refreshFailure(Object source) throws Exception {
+                // given
+                String refresh = (String) source;
+
+                // when
+                ResultActions result = callRefreshApi(refresh);
+
+                // then
+                result.andExpectAll(
+                        status().isUnauthorized(),
+                        jsonPath("$.message").exists());
+            }
+
+            @Test
+            @DisplayName("가장 최근에 발급받은 RefreshToken이 아닌 다른 토큰을 사용한 경우")
+            void refreshFailureWithOldToken() throws Exception {
+                // given
+                callSignupApi(aSignupRequest());
+                String oldRefresh = callLoginApiAndGetResponse(aLoginRequest()).refreshToken();
+                callLoginApiAndGetResponse(aLoginRequest()).refreshToken();
+
+                // when
+                ResultActions result = callRefreshApi(oldRefresh);
+
+                // then
+                result.andExpectAll(
+                        status().isUnauthorized(),
+                        jsonPath("$.message").exists());
+            }
+        }
+
     }
 
     @Test
@@ -143,66 +218,6 @@ public class AuthApiTest extends ApiTestSupport {
         result.andDo(print())
                 .andExpectAll(
                         status().isForbidden(),
-                        jsonPath("$.message").exists());
-    }
-
-    @Test
-    @DisplayName("리프래시 성공 : 새로운 토큰들을 발급받는다.")
-    void refreshSuccess() throws Exception {
-        // given
-        callSignupApi(aSignupRequest());
-        AuthResponse authResponse = callLoginApiAndGetResponse(aLoginRequest());
-        String oldToken = authResponse.accessToken();
-        String oldRefresh = authResponse.refreshToken();
-
-        // when
-        ResultActions result = callRefreshApi(oldRefresh);
-
-        // then
-        result.andDo(print())
-                .andExpectAll(
-                        status().isOk(),
-                        jsonPath("$.accessToken").exists(),
-                        jsonPath("$.accessToken").isString(),
-                        jsonPath("$.accessToken").value(not(oldToken)),
-                        jsonPath("$.refreshToken").exists(),
-                        jsonPath("$.refreshToken").isString(),
-                        jsonPath("$.refreshToken").value(not(oldRefresh)));
-    }
-
-    @ParameterizedTest
-    @NullSource
-    @ValueSource(strings = {"wrong_refresh_token", "", "  "})
-    @DisplayName("리프래시 실패 : 유효하지 않은 토큰 사용")
-    void refreshFailure(Object source) throws Exception {
-        // given
-        String refresh = (String) source;
-
-        // when
-        ResultActions result = callRefreshApi(refresh);
-
-        // then
-        result.andDo(print())
-                .andExpectAll(
-                        status().isUnauthorized(),
-                        jsonPath("$.message").exists());
-    }
-
-    @Test
-    @DisplayName("리프래시 실패 : 가장 최근에 갱신된 토큰을 사용해야 한다.")
-    void refreshFailureWithOldToken() throws Exception {
-        // given
-        callSignupApi(aSignupRequest());
-        String oldRefresh = callLoginApiAndGetResponse(aLoginRequest()).refreshToken();
-        callLoginApiAndGetResponse(aLoginRequest()).refreshToken();
-
-        // when
-        ResultActions result = callRefreshApi(oldRefresh);
-
-        // then
-        result.andDo(print())
-                .andExpectAll(
-                        status().isUnauthorized(),
                         jsonPath("$.message").exists());
     }
 }
