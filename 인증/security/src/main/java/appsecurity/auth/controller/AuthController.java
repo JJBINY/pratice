@@ -6,7 +6,7 @@ import appsecurity.auth.authentication.AuthenticateUser;
 import appsecurity.auth.controller.dto.LoginRequest;
 import appsecurity.auth.controller.dto.AuthResponse;
 import appsecurity.auth.service.dto.Login;
-import appsecurity.auth.service.dto.LoginResult;
+import appsecurity.auth.service.dto.AuthResult;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -25,7 +25,7 @@ public class AuthController {
 
     @PostMapping("/login")
     public ResponseEntity<AuthResponse> login(@RequestBody @Valid LoginRequest request) {
-        LoginResult result = authService.login(Login.builder()
+        AuthResult result = authService.login(Login.builder()
                 .email(request.email())
                 .password(request.password())
                 .build());
@@ -41,7 +41,7 @@ public class AuthController {
 
     @GetMapping("/refresh")
     public ResponseEntity<AuthResponse> refresh(@AuthenticateUser UserPrincipal userPrincipal) {
-        LoginResult result = authService.refresh(userPrincipal);
+        AuthResult result = authService.refresh(userPrincipal);
 
         return ResponseEntity
                 .status(HttpStatus.OK)
