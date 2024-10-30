@@ -1,4 +1,4 @@
-package appsecurity.exception.type;
+package appsecurity.common.exception;
 
 import org.springframework.http.HttpStatus;
 

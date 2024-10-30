@@ -1,6 +1,6 @@
 package appsecurity.auth.authorization;
 
-import appsecurity.exception.type.UnauthorizedException;
+import appsecurity.auth.exception.UnauthorizedException;
 import appsecurity.auth.Role;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.stereotype.Component;

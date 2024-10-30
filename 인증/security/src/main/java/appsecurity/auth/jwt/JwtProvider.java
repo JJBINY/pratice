@@ -1,6 +1,6 @@
 package appsecurity.auth.jwt;
 
-import appsecurity.exception.type.UnauthenticatedException;
+import appsecurity.auth.exception.UnauthenticatedException;
 import appsecurity.auth.UserPrincipal;
 import appsecurity.auth.TokenType;
 import appsecurity.auth.Role;

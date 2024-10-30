@@ -1,8 +1,9 @@
-package appsecurity.exception.type;
+package appsecurity.auth.exception;
 
+import appsecurity.common.exception.CustomException;
 import org.springframework.http.HttpStatus;
 
-public class UnauthenticatedException extends CustomException{
+public class UnauthenticatedException extends CustomException {
     public static final String DEFAULT_MESSAGE = "인증에 실패하였습니다.";
     public UnauthenticatedException() {
         super(DEFAULT_MESSAGE);

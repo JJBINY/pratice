@@ -1,4 +1,4 @@
-package appsecurity.exception;
+package appsecurity.common.exception;
 
 import lombok.Builder;
 

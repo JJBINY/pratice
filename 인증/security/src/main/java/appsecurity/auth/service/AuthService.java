@@ -2,7 +2,7 @@ package appsecurity.auth.service;
 
 import appsecurity.auth.service.dto.Login;
 import appsecurity.common.PasswordEncoder;
-import appsecurity.exception.type.UnauthenticatedException;
+import appsecurity.auth.exception.UnauthenticatedException;
 import appsecurity.auth.UserPrincipal;
 import appsecurity.auth.authentication.AuthenticationProvider;
 import appsecurity.user.User;

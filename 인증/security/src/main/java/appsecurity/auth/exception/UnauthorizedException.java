@@ -1,8 +1,9 @@
-package appsecurity.exception.type;
+package appsecurity.auth.exception;
 
+import appsecurity.common.exception.CustomException;
 import org.springframework.http.HttpStatus;
 
-public class UnauthorizedException extends CustomException{
+public class UnauthorizedException extends CustomException {
     private static final String MESSAGE = "해당 작업에 대한 권한이 없습니다.";
     public UnauthorizedException() {
         super(MESSAGE);

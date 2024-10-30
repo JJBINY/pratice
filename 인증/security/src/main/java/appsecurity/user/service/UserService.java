@@ -1,7 +1,7 @@
 package appsecurity.user.service;
 
 import appsecurity.user.service.dto.Signup;
-import appsecurity.exception.type.AlreadyExistsException;
+import appsecurity.common.exception.AlreadyExistsException;
 import appsecurity.common.PasswordEncoder;
 import appsecurity.user.User;
 import appsecurity.user.repository.UserRepository;

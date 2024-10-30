@@ -1,6 +1,6 @@
 package appsecurity.auth.authentication;
 
-import appsecurity.exception.type.UnauthenticatedException;
+import appsecurity.auth.exception.UnauthenticatedException;
 import appsecurity.auth.repository.AuthTokenRepository;
 import appsecurity.auth.TokenType;
 import appsecurity.auth.UserPrincipal;
