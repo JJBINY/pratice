@@ -21,7 +21,7 @@ import static org.apache.commons.lang3.StringUtils.joinWith;
 
 @RequiredArgsConstructor
 @Component
-public class EntryPoint401Handler implements AuthenticationEntryPoint {
+public class Auth401Handler implements AuthenticationEntryPoint {
     static final ErrorResponse errorResponse = ErrorResponse.builder()
             .message(UnauthenticatedException.DEFAULT_MESSAGE)
             .build();

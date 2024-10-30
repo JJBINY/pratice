@@ -15,11 +15,11 @@ public class AuthenticationProvider {
     private final AuthTokenRepository authTokenRepository;
 
     public String generateToken(UserPrincipal userPrincipal) {
-        return jwtProvider.generateToken(userPrincipal, TokenType.ACCESS);
+        return jwtProvider.createToken(userPrincipal, TokenType.ACCESS);
     }
 
     public String generateRefresh(UserPrincipal userPrincipal) {
-        String token = jwtProvider.generateToken(userPrincipal, TokenType.REFRESH);
+        String token = jwtProvider.createToken(userPrincipal, TokenType.REFRESH);
         AuthToken refresh = AuthToken.builder()
                 .userId(userPrincipal.getUserId())
                 .token(token)
@@ -28,4 +28,5 @@ public class AuthenticationProvider {
         return token;
     }
 
+//    public record AuthHolder(String accessToken, String refreshToken){ }
 }
