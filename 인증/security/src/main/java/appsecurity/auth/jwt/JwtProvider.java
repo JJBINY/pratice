@@ -1,18 +1,19 @@
 package appsecurity.auth.jwt;
 
-import appsecurity.auth.exception.UnauthenticatedException;
-import appsecurity.auth.UserPrincipal;
-import appsecurity.auth.TokenType;
+import appsecurity.auth.AuthUser;
 import appsecurity.auth.Role;
+import appsecurity.auth.TokenType;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.interfaces.DecodedJWT;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.stereotype.Component;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
+import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
@@ -45,36 +46,40 @@ public class JwtProvider {
         this.randomSalt = new Random();
     }
 
-    public String generateToken(UserPrincipal userPrincipal, TokenType type) {
-        return generateToken(userPrincipal, type, expirySecondsMap.get(type));
+    public String createToken(AuthUser authUser, TokenType type) {
+        return createToken(authUser, type, expirySecondsMap.get(type));
     }
 
-    private String generateToken(UserPrincipal userPrincipal, TokenType type, long expirySeconds) {
+    private String createToken(AuthUser authUser, TokenType type, long expirySeconds) {
+        List<String> authorities = authUser.getAuthorities().stream()
+                .map(GrantedAuthority::getAuthority)
+                .toList();
         return JWT.create().withIssuer(issuer)
-                .withClaim(USER.getClaimName(), userPrincipal.getUserId())
-                .withClaim(ROLE.getClaimName(), userPrincipal.getRole().name())
+                .withClaim(USER.getClaimName(), authUser.getUserId())
+                .withClaim(ROLES.getClaimName(), authorities)
                 .withClaim(TYPE.getClaimName(), type.name())
                 .withClaim(SALT.getClaimName(), randomSalt.nextInt())
                 .withExpiresAt(Instant.now().plus(expirySeconds, ChronoUnit.SECONDS))
                 .sign(algorithm);
     }
 
-    public Claims validate(String token) {
+    public Claims validate(String token) throws JwtValidationException{
         try {
             DecodedJWT decodedJwt = jwtVerifier.verify(token);
             Long userId = decodedJwt.getClaim(USER.getClaimName()).asLong();
-            Role role = Role.valueOf(decodedJwt.getClaim(ROLE.getClaimName()).asString());
+//            Role role = Role.valueOf(decodedJwt.getClaim(ROLES.getClaimName()).asString()); // todo grantedAuthorities List로 변환 후 후처리
+            Role role = Role.USER; // todo
             TokenType type = TokenType.valueOf(decodedJwt.getClaim(TYPE.getClaimName()).asString());
             return new Claims(userId, role, type);
         } catch (JWTVerificationException e) {
-            throw new UnauthenticatedException("유효하지 않은 토큰입니다.");
+            throw new JwtValidationException();
         }
     }
 
-    public Claims validate(String jwt, TokenType requiredType) {
+    public Claims validate(String jwt, TokenType requiredType) throws JwtValidationException{
         Claims claims = validate(jwt);
         if (claims.type != requiredType) {
-            throw new UnauthenticatedException("유효하지 않은 타입의 토큰입니다.");
+            throw new JwtValidationException("유효하지 않은 타입의 토큰입니다.");
         }
         return claims;
     }

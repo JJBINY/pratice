@@ -1,14 +1,10 @@
 package appsecurity.common.exception;
 
-import org.springframework.http.HttpStatus;
-
-public abstract class CustomException extends RuntimeException {
+public abstract class CustomException extends RuntimeException implements CustomExceptionType {
     public CustomException() {
     }
 
     public CustomException(String message) {
         super(message);
     }
-
-    public abstract HttpStatus getStatus();
 }

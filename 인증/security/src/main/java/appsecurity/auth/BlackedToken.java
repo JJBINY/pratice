@@ -16,13 +16,13 @@ import java.util.function.Supplier;
 @Table(name = "auth_tokens")
 @Getter(AccessLevel.PROTECTED)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class AuthToken extends CreateTimeEntity {
+public class BlackedToken extends CreateTimeEntity { // todo rename, 일단 임시로 blacked token으로 명명
     @Id
     private Long userId;
     private String token;
 
     @Builder
-    public AuthToken(Long userId, String token) {
+    public BlackedToken(Long userId, String token) {
         this.userId = userId;
         this.token = token;
     }
@@ -31,7 +31,7 @@ public class AuthToken extends CreateTimeEntity {
         return token.equals(this.token);
     }
 
-    public <X extends Throwable> AuthToken validate(String token, Supplier<? extends X> exceptionSupplier) throws X {
+    public <X extends Throwable> BlackedToken validate(String token, Supplier<? extends X> exceptionSupplier) throws X {
         if (!validate(token)) {
             throw exceptionSupplier.get();
         }

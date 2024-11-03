@@ -1,10 +1,10 @@
 package appsecurity.auth.repository;
 
-import appsecurity.auth.AuthToken;
+import appsecurity.auth.BlackedToken;
 import org.springframework.data.repository.CrudRepository;
 
 import java.util.Optional;
 
-public interface AuthTokenRepository extends CrudRepository<AuthToken, Long> {
-    Optional<AuthToken> findByUserId(Long userId);
+public interface AuthTokenRepository extends CrudRepository<BlackedToken, Long> {
+    Optional<BlackedToken> findByUserId(Long userId);
 }

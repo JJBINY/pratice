@@ -1,6 +1,7 @@
 package appsecurity.auth.authentication;
 
 import appsecurity.auth.exception.UnauthenticatedException;
+import appsecurity.auth.jwt.JwtValidationException;
 import appsecurity.auth.repository.AuthTokenRepository;
 import appsecurity.auth.TokenType;
 import appsecurity.auth.UserPrincipal;
@@ -8,6 +9,7 @@ import appsecurity.auth.config.AuthProps;
 import appsecurity.auth.jwt.JwtProvider;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.MethodParameter;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.support.WebDataBinderFactory;
@@ -17,6 +19,7 @@ import org.springframework.web.method.support.ModelAndViewContainer;
 
 import static org.apache.commons.lang3.StringUtils.substringAfter;
 
+@Slf4j
 @Component
 @RequiredArgsConstructor
 public class AuthenticateUserResolver implements HandlerMethodArgumentResolver {
@@ -36,13 +39,16 @@ public class AuthenticateUserResolver implements HandlerMethodArgumentResolver {
         HttpServletRequest request = (HttpServletRequest) webRequest.getNativeRequest();
         String refreshHeader = request.getHeader(authProps.refreshHeader);
         String token = substringAfter(refreshHeader, authProps.scheme).trim();
-        JwtProvider.Claims claims = jwtProvider.validate(token, TokenType.REFRESH);
-
-        //todo blacklist로 변경
-        authTokenRepository.findByUserId(claims.userId())
-                .orElseThrow(() -> new UnauthenticatedException())
-                .validate(token, ()->new UnauthenticatedException());
-
-        return new UserPrincipal(claims.userId(), claims.role());
+        log.info("refreshHeader = {}, token = {}", refreshHeader, token);
+        try {
+            JwtProvider.Claims claims = jwtProvider.validate(token, TokenType.REFRESH);
+            //todo blacklist로 변경
+            authTokenRepository.findByUserId(claims.userId())
+                    .orElseThrow(() -> new UnauthenticatedException())
+                    .validate(token, ()->new UnauthenticatedException());
+            return new UserPrincipal(claims.userId(), claims.role());
+        }catch (JwtValidationException e){
+            throw new UnauthenticatedException(e.getMessage());
+        }
     }
 }

@@ -2,7 +2,7 @@ package appsecurity.auth.jwt;
 
 public enum JwtClaims {
     USER("userId"),
-    ROLE("roleName"),
+    ROLES("roles"),
     TYPE("type"),
     SALT("salt");
 

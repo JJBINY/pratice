@@ -25,11 +25,12 @@ public class AuthController {
 
     @PostMapping("/login")
     public ResponseEntity<AuthResponse> login(@RequestBody @Valid LoginRequest request) {
+        log.info("login request = {}",request);
         AuthResult result = authService.login(Login.builder()
                 .email(request.email())
                 .password(request.password())
                 .build());
-
+        log.info("login success for = {}",request);
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .contentType(MediaType.APPLICATION_JSON)

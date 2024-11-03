@@ -1,15 +1,14 @@
 package appsecurity.auth.service;
 
-import appsecurity.auth.service.dto.Login;
-import appsecurity.common.PasswordEncoder;
-import appsecurity.auth.exception.UnauthenticatedException;
+import appsecurity.auth.AuthUser;
 import appsecurity.auth.UserPrincipal;
-import appsecurity.auth.authentication.AuthenticationProvider;
-import appsecurity.user.User;
-import appsecurity.user.repository.UserRepository;
+import appsecurity.auth.authentication.EmailPasswordAuthenticationToken;
 import appsecurity.auth.service.dto.AuthResult;
+import appsecurity.auth.service.dto.Login;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -18,38 +17,31 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional(readOnly = true)
 @Slf4j
 public class AuthService {
-
-    private final UserRepository userRepository;
-    private final PasswordEncoder passwordEncoder;
-    private final AuthenticationProvider authenticationProvider;
+    private final AuthUserService authUserService;
+    private final AuthTokenProvider authTokenProvider;
+    private final AuthenticationManager authenticationManager;
 
     @Transactional
     public AuthResult login(Login login) {
-        User user = userRepository.findByEmail(login.email())
-                .orElseThrow(() -> new UnauthenticatedException("이메일이 존재하지 않습니다."));
-
-        if (!passwordEncoder.matches(login.password(), user.getPassword())) {
-            throw new UnauthenticatedException("비밀번호가 일치하지 않습니다.");
-        }
-
-        log.info("[LOGIN] userId = {} ", user.getId());
-        return createLoginResponse(user);
+        log.info("login process progress... {}",login);
+        var unauthenticated = EmailPasswordAuthenticationToken.unauthenticated(login.email(), login.password());
+        log.info("unauthenticated");
+        var authenticated = authenticationManager.authenticate(unauthenticated);
+        log.info("authenticated");
+        return getAuthResult(authenticated);
     }
 
     @Transactional
     public AuthResult refresh(UserPrincipal userPrincipal) {
-        User user = userRepository.findById(userPrincipal.getUserId())
-                .orElseThrow(() -> new UnauthenticatedException());
-
-        log.info("[REFRESH] userId = {}", user.getId());
-        return createLoginResponse(user);
+        AuthUser authUser = authUserService.loadUserById(userPrincipal.getUserId());
+        EmailPasswordAuthenticationToken authenticated = EmailPasswordAuthenticationToken.authenticated(authUser);
+        log.info("[REFRESH] userId = {}", authUser.getUserId());
+        return getAuthResult(authenticated);
     }
 
-    private AuthResult createLoginResponse(User user) {
-        UserPrincipal userPrincipal = new UserPrincipal(user.getId(), user.getRole());
-        String token = authenticationProvider.generateToken(userPrincipal);
-        String refresh = authenticationProvider.generateRefresh(userPrincipal);
-        return new AuthResult(token, refresh);
+    private AuthResult getAuthResult(Authentication authenticated) {
+        var authToken = authTokenProvider.generateToken(authenticated);
+        return new AuthResult(authToken.forAccess(), authToken.forRefresh());
     }
 
     // todo logout

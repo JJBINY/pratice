@@ -2,7 +2,6 @@ package appsecurity.auth;
 
 import appsecurity.auth.controller.dto.AuthResponse;
 import appsecurity.auth.controller.dto.LoginRequest;
-import appsecurity.auth.jwt.JwtProvider;
 import appsecurity.common.ApiTestSupport;
 import appsecurity.user.User;
 import appsecurity.user.controller.dto.SignupRequest;
