@@ -1,5 +1,6 @@
 package appsecurity.auth.authentication;
 
+import appsecurity.auth.Role;
 import appsecurity.auth.exception.UnauthenticatedException;
 import appsecurity.auth.jwt.JwtValidationException;
 import appsecurity.auth.repository.AuthTokenRepository;
@@ -46,7 +47,8 @@ public class AuthenticateUserResolver implements HandlerMethodArgumentResolver {
             authTokenRepository.findByUserId(claims.userId())
                     .orElseThrow(() -> new UnauthenticatedException())
                     .validate(token, ()->new UnauthenticatedException());
-            return new UserPrincipal(claims.userId(), claims.role());
+
+            return new UserPrincipal(claims.userId(), Role.roleOf(claims.roles().get(0))); //todo roles 처리 방법 변경
         }catch (JwtValidationException e){
             throw new UnauthenticatedException(e.getMessage());
         }

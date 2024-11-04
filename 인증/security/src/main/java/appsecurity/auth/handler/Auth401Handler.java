@@ -1,42 +1,30 @@
 package appsecurity.auth.handler;
 
-import appsecurity.auth.config.AuthProps;
-import appsecurity.common.exception.ErrorResponse;
 import appsecurity.auth.exception.UnauthenticatedException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.stereotype.Component;
+import org.springframework.web.servlet.HandlerExceptionResolver;
 
 import java.io.IOException;
-
-import static org.apache.commons.lang3.StringUtils.SPACE;
-import static org.apache.commons.lang3.StringUtils.joinWith;
 
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class Auth401Handler implements AuthenticationEntryPoint {
-    static final ErrorResponse errorResponse = ErrorResponse.builder()
-            .message(UnauthenticatedException.DEFAULT_MESSAGE)
-            .build();
+public class Auth401Handler implements AuthenticationEntryPoint { //todo rename
 
-    private final AuthProps authProps;
-    private final ObjectMapper objectMapper;
+    @Qualifier("handlerExceptionResolver")
+    private final HandlerExceptionResolver handlerExceptionResolver;
 
     @Override
     public void commence(HttpServletRequest request, HttpServletResponse response, AuthenticationException authException) throws IOException, ServletException {
-        log.warn("Auth401Handler: authException = {}", authException);
-        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-        response.setHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE);
-        response.setHeader(HttpHeaders.WWW_AUTHENTICATE, joinWith(SPACE, authProps.scheme, "realm=\"access to the api\""));
-        objectMapper.writeValue(response.getWriter(), errorResponse);
+        log.info("Handle 401 Error: requestURI = {}", request.getRequestURI());
+        handlerExceptionResolver.resolveException(request, response, null, new UnauthenticatedException(authException.getMessage()));
     }
 }

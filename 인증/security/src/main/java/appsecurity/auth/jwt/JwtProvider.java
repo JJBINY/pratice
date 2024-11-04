@@ -1,13 +1,12 @@
 package appsecurity.auth.jwt;
 
 import appsecurity.auth.AuthUser;
-import appsecurity.auth.Role;
 import appsecurity.auth.TokenType;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.JWTVerificationException;
-import com.auth0.jwt.interfaces.DecodedJWT;
+import com.auth0.jwt.interfaces.Claim;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.stereotype.Component;
 
@@ -25,7 +24,7 @@ import static appsecurity.auth.jwt.JwtClaims.*;
  * Reference : https://github.com/auth0/java-jwt/blob/master/EXAMPLES.md
  */
 @Component
-public class JwtProvider {
+public class JwtProvider { // todo provider와 util 중 역할 고민해보고 리팩토링 후 이름 변경 고려
     private final String issuer;
     private final String secret;
     private final Map<TokenType, Long> expirySecondsMap;
@@ -50,13 +49,14 @@ public class JwtProvider {
         return createToken(authUser, type, expirySecondsMap.get(type));
     }
 
-    private String createToken(AuthUser authUser, TokenType type, long expirySeconds) {
-        List<String> authorities = authUser.getAuthorities().stream()
+    private String createToken(AuthUser authUser, TokenType type, long expirySeconds) { //todo authUser, Role 등 외부 의존성 JwtAuthenticationProvider로 빼내기
+        List<String> roles = authUser.getAuthorities().stream()
                 .map(GrantedAuthority::getAuthority)
                 .toList();
+
         return JWT.create().withIssuer(issuer)
                 .withClaim(USER.getClaimName(), authUser.getUserId())
-                .withClaim(ROLES.getClaimName(), authorities)
+                .withClaim(ROLES.getClaimName(), roles)
                 .withClaim(TYPE.getClaimName(), type.name())
                 .withClaim(SALT.getClaimName(), randomSalt.nextInt())
                 .withExpiresAt(Instant.now().plus(expirySeconds, ChronoUnit.SECONDS))
@@ -65,12 +65,11 @@ public class JwtProvider {
 
     public Claims validate(String token) throws JwtValidationException{
         try {
-            DecodedJWT decodedJwt = jwtVerifier.verify(token);
-            Long userId = decodedJwt.getClaim(USER.getClaimName()).asLong();
-//            Role role = Role.valueOf(decodedJwt.getClaim(ROLES.getClaimName()).asString()); // todo grantedAuthorities List로 변환 후 후처리
-            Role role = Role.USER; // todo
-            TokenType type = TokenType.valueOf(decodedJwt.getClaim(TYPE.getClaimName()).asString());
-            return new Claims(userId, role, type);
+            Map<String, Claim> claims = jwtVerifier.verify(token).getClaims();
+            Long userId = claims.get(USER.getClaimName()).asLong();
+            TokenType type = TokenType.valueOf(claims.get(TYPE.getClaimName()).asString());
+            List<String> roles = claims.get(ROLES.getClaimName()).asList(String.class);
+            return new Claims(userId, type, roles);
         } catch (JWTVerificationException e) {
             throw new JwtValidationException();
         }
@@ -84,6 +83,6 @@ public class JwtProvider {
         return claims;
     }
 
-    public record Claims(Long userId, Role role, TokenType type) {
+    public record Claims(Long userId, TokenType type, List<String> roles) {
     }
 }

@@ -1,5 +1,6 @@
 package appsecurity.auth.authentication;
 
+import appsecurity.auth.AuthUser;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.util.Assert;
@@ -7,30 +8,29 @@ import org.springframework.util.Assert;
 import java.util.Collection;
 
 public class JwtAuthenticationToken extends AbstractAuthenticationToken {
-    private final Object principal;
-    private String credentials;
+    private final AuthUser principal;
+    private final String jwt; // jwt; string보다는 JWT타입(record) 생성해서 할당
 
-    public JwtAuthenticationToken(Object principal, String credentials) {
+    public static JwtAuthenticationToken unauthenticated(String jwt) {
+        return new JwtAuthenticationToken(jwt);
+    }
+
+    public static JwtAuthenticationToken authenticated(AuthUser principal) {
+        return new JwtAuthenticationToken(principal, principal.getAuthorities());
+    }
+
+    private JwtAuthenticationToken(String jwt) {
         super(null);
-        this.principal = principal;
-        this.credentials = credentials;
+        this.principal = null;
+        this.jwt = jwt;
         setAuthenticated(false);
     }
 
-    public JwtAuthenticationToken(Object principal, String credentials, Collection<? extends GrantedAuthority> authorities) {
+    private JwtAuthenticationToken(AuthUser principal, Collection<? extends GrantedAuthority> authorities) {
         super(authorities);
         this.principal = principal;
-        this.credentials = credentials;
+        this.jwt = null;
         super.setAuthenticated(true); // must use super, as we override
-    }
-
-    public static JwtAuthenticationToken unauthenticated(Object principal, String credentials) {
-        return new JwtAuthenticationToken(principal, credentials);
-    }
-
-    public static JwtAuthenticationToken authenticated(Object principal, String credentials,
-                                                                    Collection<? extends GrantedAuthority> authorities) {
-        return new JwtAuthenticationToken(principal, credentials, authorities);
     }
 
     @Override
@@ -40,19 +40,14 @@ public class JwtAuthenticationToken extends AbstractAuthenticationToken {
 
     @Override
     public String getCredentials() {
-        return this.credentials;
+        return this.jwt;
     }
 
     @Override
+    @Deprecated
     public void setAuthenticated(boolean isAuthenticated) throws IllegalArgumentException {
         Assert.isTrue(!isAuthenticated,
                 "Cannot set this accessToken to trusted - use constructor which takes a GrantedAuthority list instead");
         super.setAuthenticated(false);
-    }
-
-    @Override
-    public void eraseCredentials() {
-        super.eraseCredentials();
-        this.credentials = null;
     }
 }

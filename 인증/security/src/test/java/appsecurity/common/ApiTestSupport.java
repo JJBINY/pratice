@@ -1,63 +1,40 @@
 package appsecurity.common;
 
 import appsecurity.auth.config.AuthProps;
-import appsecurity.auth.jwt.JwtProvider;
-import appsecurity.auth.controller.dto.LoginRequest;
 import appsecurity.auth.controller.dto.AuthResponse;
+import appsecurity.auth.controller.dto.LoginRequest;
 import appsecurity.user.controller.dto.SignupRequest;
 import appsecurity.user.repository.UserRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
-import org.aspectj.lang.annotation.Before;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.MockMvcBuilder;
 import org.springframework.test.web.servlet.ResultActions;
-import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
-import org.springframework.web.filter.CharacterEncodingFilter;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 
 @Slf4j
 @SpringBootTest
-//@AutoConfigureMockMvc
+@AutoConfigureMockMvc
 public class ApiTestSupport {
 
     @Autowired
-    protected ObjectMapper objectMapper;
-
-    @Autowired
-    WebApplicationContext ctx;
-
-//    @Autowired
     protected MockMvc mockMvc;
 
-    @BeforeEach
-    public void setUp(){
-        mockMvc = MockMvcBuilders.webAppContextSetup(ctx)
-                .alwaysDo(print())
-                .addFilters(new CharacterEncodingFilter("UTF-8", true))
-                .build();
-    }
-
+    @Autowired
+    protected ObjectMapper objectMapper;
 
     @Autowired
     protected UserRepository userRepository;
 
     @Autowired
     protected AuthProps authProps;
-
-    @Autowired
-    protected JwtProvider jwtProvider;
 
     @Autowired
     CleanUp cleanUp;

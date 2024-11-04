@@ -39,8 +39,8 @@ public class AuthService {
         return getAuthResult(authenticated);
     }
 
-    private AuthResult getAuthResult(Authentication authenticated) {
-        var authToken = authTokenProvider.generateToken(authenticated);
+    private AuthResult getAuthResult(Authentication authentication) {
+        var authToken = authTokenProvider.generateToken(authentication);
         return new AuthResult(authToken.forAccess(), authToken.forRefresh());
     }
 
