@@ -17,7 +17,7 @@ import java.io.IOException;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class Auth403Handler implements AccessDeniedHandler {
+public class CustomAccessDeniedHandler implements AccessDeniedHandler {
 
     @Qualifier("handlerExceptionResolver")
     private final HandlerExceptionResolver handlerExceptionResolver;

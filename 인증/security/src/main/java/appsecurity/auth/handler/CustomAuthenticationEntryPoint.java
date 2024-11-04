@@ -17,7 +17,7 @@ import java.io.IOException;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class Auth401Handler implements AuthenticationEntryPoint { //todo rename
+public class CustomAuthenticationEntryPoint implements AuthenticationEntryPoint {
 
     @Qualifier("handlerExceptionResolver")
     private final HandlerExceptionResolver handlerExceptionResolver;

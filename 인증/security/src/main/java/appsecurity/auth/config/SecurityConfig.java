@@ -4,8 +4,8 @@ import appsecurity.auth.Role;
 import appsecurity.auth.authentication.EmailPasswordAuthenticationProvider;
 import appsecurity.auth.authentication.JwtAuthenticationFilter;
 import appsecurity.auth.authentication.JwtAuthenticationProvider;
-import appsecurity.auth.handler.Auth401Handler;
-import appsecurity.auth.handler.Auth403Handler;
+import appsecurity.auth.handler.CustomAuthenticationEntryPoint;
+import appsecurity.auth.handler.CustomAccessDeniedHandler;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -28,8 +28,8 @@ public class SecurityConfig {
     private final AuthProps authProps;
     private final JwtAuthenticationProvider jwtAuthenticationProvider;
     private final EmailPasswordAuthenticationProvider emailPasswordAuthenticationProvider;
-    private final Auth401Handler auth401Handler;
-    private final Auth403Handler auth403Handler;
+    private final CustomAuthenticationEntryPoint customAuthenticationEntryPoint;
+    private final CustomAccessDeniedHandler customAccessDeniedHandler;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -45,8 +45,8 @@ public class SecurityConfig {
                         .requestMatchers(GET, "/api/users/authorization").hasRole(Role.ADMIN.name())
                         .anyRequest().authenticated())
                 .exceptionHandling(eh -> eh
-                        .authenticationEntryPoint(auth401Handler)
-                        .accessDeniedHandler(auth403Handler))
+                        .authenticationEntryPoint(customAuthenticationEntryPoint)
+                        .accessDeniedHandler(customAccessDeniedHandler))
                 .addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class)
                 .build();
     }
