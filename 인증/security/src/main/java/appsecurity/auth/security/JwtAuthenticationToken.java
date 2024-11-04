@@ -1,4 +1,4 @@
-package appsecurity.auth.authentication;
+package appsecurity.auth.security;
 
 import appsecurity.auth.AuthUser;
 import org.springframework.security.authentication.AbstractAuthenticationToken;

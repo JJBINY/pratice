@@ -1,11 +1,8 @@
-package appsecurity.auth.authentication;
+package appsecurity.auth;
 
-import appsecurity.auth.Role;
 import appsecurity.auth.exception.UnauthenticatedException;
 import appsecurity.auth.jwt.JwtValidationException;
 import appsecurity.auth.repository.AuthTokenRepository;
-import appsecurity.auth.TokenType;
-import appsecurity.auth.UserPrincipal;
 import appsecurity.auth.config.AuthProps;
 import appsecurity.auth.jwt.JwtProvider;
 import jakarta.servlet.http.HttpServletRequest;

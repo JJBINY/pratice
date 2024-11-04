@@ -1,4 +1,4 @@
-package appsecurity.auth.handler;
+package appsecurity.auth.security;
 
 import appsecurity.auth.exception.UnauthorizedException;
 import jakarta.servlet.ServletException;

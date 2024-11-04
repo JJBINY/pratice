@@ -1,6 +1,6 @@
 package appsecurity.auth.config;
 
-import appsecurity.auth.authentication.AuthenticateUserResolver;
+import appsecurity.auth.AuthenticateUserResolver;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
@@ -10,7 +10,7 @@ import java.util.List;
 
 @Configuration
 @RequiredArgsConstructor
-public class SecurityWebMvcConfig implements WebMvcConfigurer {
+public class AuthWebMvcConfig implements WebMvcConfigurer {
 
     private final AuthenticateUserResolver authenticateUserResolver;
 

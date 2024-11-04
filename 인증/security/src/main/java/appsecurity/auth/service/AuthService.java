@@ -2,7 +2,7 @@ package appsecurity.auth.service;
 
 import appsecurity.auth.AuthUser;
 import appsecurity.auth.UserPrincipal;
-import appsecurity.auth.authentication.EmailPasswordAuthenticationToken;
+import appsecurity.auth.security.EmailPasswordAuthenticationToken;
 import appsecurity.auth.service.dto.AuthResult;
 import appsecurity.auth.service.dto.Login;
 import lombok.RequiredArgsConstructor;

@@ -1,4 +1,4 @@
-package appsecurity.auth.authentication;
+package appsecurity.auth;
 
 import java.lang.annotation.*;
 

@@ -1,7 +1,7 @@
 package appsecurity.auth.service;
 
 import appsecurity.auth.*;
-import appsecurity.auth.authentication.EmailPasswordAuthenticationToken;
+import appsecurity.auth.security.EmailPasswordAuthenticationToken;
 import appsecurity.auth.jwt.JwtProvider;
 import appsecurity.auth.repository.AuthTokenRepository;
 import lombok.Builder;

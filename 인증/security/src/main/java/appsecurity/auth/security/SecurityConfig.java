@@ -1,11 +1,7 @@
-package appsecurity.auth.config;
+package appsecurity.auth.security;
 
 import appsecurity.auth.Role;
-import appsecurity.auth.authentication.EmailPasswordAuthenticationProvider;
-import appsecurity.auth.authentication.JwtAuthenticationFilter;
-import appsecurity.auth.authentication.JwtAuthenticationProvider;
-import appsecurity.auth.handler.CustomAuthenticationEntryPoint;
-import appsecurity.auth.handler.CustomAccessDeniedHandler;
+import appsecurity.auth.config.AuthProps;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

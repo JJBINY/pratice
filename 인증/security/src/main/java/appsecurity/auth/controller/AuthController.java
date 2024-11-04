@@ -2,7 +2,7 @@ package appsecurity.auth.controller;
 
 import appsecurity.auth.service.AuthService;
 import appsecurity.auth.UserPrincipal;
-import appsecurity.auth.authentication.AuthenticateUser;
+import appsecurity.auth.AuthenticateUser;
 import appsecurity.auth.controller.dto.LoginRequest;
 import appsecurity.auth.controller.dto.AuthResponse;
 import appsecurity.auth.service.dto.Login;
