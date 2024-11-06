@@ -20,21 +20,21 @@ public class EmailPasswordAuthenticationProvider implements AuthenticationProvid
     @Override
     public Authentication authenticate(Authentication authentication) throws AuthenticationException {
         log.info("EmailPasswordAuthenticationProvider.authenticate for = {}",authentication);
-        var authenticationToken = (EmailPasswordAuthenticationToken) authentication;
-        var email = authenticationToken.getEmail();
-        var password = authenticationToken.getCredentials();
+        var emailPasswordAuthenticationToken = (EmailPasswordAuthentication) authentication;
+        var email = emailPasswordAuthenticationToken.getEmail();
+        var credentials = emailPasswordAuthenticationToken.getCredentials();
 
         AuthUser authUser = authUserService.loadUserByEmail(email);
 
-        if (!passwordEncoder.matches(password, authUser.getPassword())) {
+        if (!passwordEncoder.matches(credentials.password(), authUser.getPassword())) {
             throw new UnauthenticatedException("Invalid password");
         }
 
-        return EmailPasswordAuthenticationToken.authenticated(authUser.getUserId(), authUser.getAuthorities());
+        return EmailPasswordAuthentication.authenticated(new UserId(authUser.getUserId()), authUser.getAuthorities());
     }
 
     @Override
     public boolean supports(Class<?> authentication) {
-        return authentication.isAssignableFrom(EmailPasswordAuthenticationToken.class);
+        return authentication.isAssignableFrom(EmailPasswordAuthentication.class);
     }
 }

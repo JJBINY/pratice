@@ -6,40 +6,40 @@ import org.springframework.util.Assert;
 
 import java.util.Collection;
 
-public class JwtAuthenticationToken extends AbstractAuthenticationToken {
-    private final Long principal; // UserId
-    private final String jwt; // todo jwt; string보다는 JWT타입(record) 생성해서 할당
+public class JwtAuthentication extends AbstractAuthenticationToken implements CustomAuthentication {
+    private final UserId principal;
+    private final Jwt credentials;
 
-    public static JwtAuthenticationToken unauthenticated(String jwt) {
-        return new JwtAuthenticationToken(jwt);
+    public static JwtAuthentication unauthenticated(String jwt) {
+        return new JwtAuthentication(jwt);
     }
 
-    public static JwtAuthenticationToken authenticated(Long principal, Collection<? extends GrantedAuthority> authorities) {
-        return new JwtAuthenticationToken(principal, authorities);
+    public static JwtAuthentication authenticated(UserId principal, Collection<? extends GrantedAuthority> authorities) {
+        return new JwtAuthentication(principal, authorities);
     }
 
-    private JwtAuthenticationToken(String jwt) {
+    private JwtAuthentication(String jwt) {
         super(null);
         this.principal = null;
-        this.jwt = jwt;
+        this.credentials = new Jwt(jwt);
         setAuthenticated(false);
     }
 
-    private JwtAuthenticationToken(Long principal, Collection<? extends GrantedAuthority> authorities) {
+    private JwtAuthentication(UserId principal, Collection<? extends GrantedAuthority> authorities) {
         super(authorities);
         this.principal = principal;
-        this.jwt = null;
+        this.credentials = null;
         super.setAuthenticated(true); // must use super, as we override
     }
 
     @Override
-    public Object getPrincipal() {
+    public UserId getPrincipal() {
         return this.principal;
     }
 
     @Override
-    public String getCredentials() {
-        return this.jwt;
+    public Jwt getCredentials() {
+        return this.credentials;
     }
 
     @Override
@@ -48,5 +48,8 @@ public class JwtAuthenticationToken extends AbstractAuthenticationToken {
         Assert.isTrue(!isAuthenticated,
                 "Cannot set this accessToken to trusted - use constructor which takes a GrantedAuthority list instead");
         super.setAuthenticated(false);
+    }
+
+    public record Jwt(String jwt) {
     }
 }

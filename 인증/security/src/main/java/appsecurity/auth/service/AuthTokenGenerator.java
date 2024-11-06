@@ -2,10 +2,11 @@ package appsecurity.auth.service;
 
 import appsecurity.auth.*;
 import appsecurity.auth.jwt.JwtType;
-import appsecurity.auth.security.AuthUser;
-import appsecurity.auth.security.EmailPasswordAuthenticationToken;
+import appsecurity.auth.security.CustomAuthentication;
+import appsecurity.auth.security.EmailPasswordAuthentication;
 import appsecurity.auth.jwt.JwtProvider;
 import appsecurity.auth.repository.AuthTokenRepository;
+import appsecurity.auth.security.UserId;
 import lombok.Builder;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
@@ -25,21 +26,18 @@ public class AuthTokenGenerator {
             throw new IllegalArgumentException("인증되지 않은 인증정보로는 토큰을 생성할 수 없습니다");
         }
 
-        Long userId; // todo UserId record 생성; 보편 언어
-        List<String> roles;
-
-        if (authentication instanceof EmailPasswordAuthenticationToken) {
-            userId = ((EmailPasswordAuthenticationToken) authentication).getPrincipal();
-            roles = authentication.getAuthorities().stream()
-                    .map(GrantedAuthority::getAuthority)
-                    .toList();
-        } else {
-            throw new IllegalArgumentException("지원하지 않은 형태의 인증 정보입니다");
+        if (!(authentication instanceof CustomAuthentication)) { // precondition
+            throw new IllegalArgumentException("지원하지 않는 형태의 인증 정보입니다");
         }
 
+        UserId userId = ((EmailPasswordAuthentication) authentication).getPrincipal();
+        List<String> roles = authentication.getAuthorities().stream()
+                .map(GrantedAuthority::getAuthority)
+                .toList();
+
         return AuthToken.builder()
-                .forAccess(generateToken(userId, roles))
-                .forRefresh(generateRefresh(userId, roles))
+                .forAccess(generateToken(userId.userId(), roles))
+                .forRefresh(generateRefresh(userId.userId(), roles))
                 .build();
     }
 

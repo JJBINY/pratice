@@ -36,16 +36,17 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         }
 
         var accessToken = substringAfter(authHeader, authProps.scheme).trim();
-        var unauthenticated = JwtAuthenticationToken.unauthenticated(accessToken);
+        var unauthenticated = JwtAuthentication.unauthenticated(accessToken);
         var authentication = authenticationManager.authenticate(unauthenticated);
 
         if(!authentication.isAuthenticated()){
+            // todo 예외 타입 세분화: 예외 타입을 속성에 지정
             SecurityContextHolder.clearContext();
             filterChain.doFilter(request, response);
             return;
         }
 
-        log.info("인증 성공 !! AuthUser = {}",authentication.getPrincipal());
+        log.debug("인증 성공 !! AuthUser = {}",authentication.getPrincipal());
         SecurityContextHolder.getContext().setAuthentication(authentication);
         filterChain.doFilter(request, response);
     }

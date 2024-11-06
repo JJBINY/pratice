@@ -18,22 +18,22 @@ public class JwtAuthenticationProvider implements AuthenticationProvider{
 
     @Override
     public Authentication authenticate(Authentication authentication) throws AuthenticationException {
-        var authenticationToken = (JwtAuthenticationToken) authentication;
-        var jwt = authenticationToken.getCredentials();
+        var jwtAuthenticationToken = (JwtAuthentication) authentication;
+        var credentials = jwtAuthenticationToken.getCredentials();
 
         try {
-            var claims = jwtProvider.validate(jwt);
+            var claims = jwtProvider.validate(credentials.jwt());
             var authorities = claims.roles().stream().map(SimpleGrantedAuthority::new).toList();
-            log.warn("토큰 검증 성공: 권한 = {}", authorities);
-            return JwtAuthenticationToken.authenticated(claims.userId(), authorities);
+            log.debug("토큰 검증 성공: 권한 = {}", authorities);
+            return JwtAuthentication.authenticated(new UserId(claims.userId()), authorities);
         } catch (JwtValidationException e) {
             log.warn("토큰 검증 실패 = {}", e.getMessage());
-            return JwtAuthenticationToken.unauthenticated(jwt);
+            return JwtAuthentication.unauthenticated(credentials.jwt());
         }
     }
 
     @Override
     public boolean supports(Class<?> authentication) {
-        return authentication.isAssignableFrom(JwtAuthenticationToken.class);
+        return authentication.isAssignableFrom(JwtAuthentication.class);
     }
 }

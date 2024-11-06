@@ -2,7 +2,8 @@ package appsecurity.auth.service;
 
 import appsecurity.auth.security.AuthUser;
 import appsecurity.auth.UserPrincipal;
-import appsecurity.auth.security.EmailPasswordAuthenticationToken;
+import appsecurity.auth.security.EmailPasswordAuthentication;
+import appsecurity.auth.security.UserId;
 import appsecurity.auth.service.dto.AuthResult;
 import appsecurity.auth.service.dto.Login;
 import lombok.RequiredArgsConstructor;
@@ -24,7 +25,7 @@ public class AuthService {
     @Transactional
     public AuthResult login(Login login) {
         log.info("login process progress... {}",login);
-        var unauthenticated = EmailPasswordAuthenticationToken.unauthenticated(login.email(), login.password());
+        var unauthenticated = EmailPasswordAuthentication.unauthenticated(login.email(), login.password());
         log.info("unauthenticated");
         var authenticated = authenticationManager.authenticate(unauthenticated);
         log.info("authenticated");
@@ -34,7 +35,7 @@ public class AuthService {
     @Transactional
     public AuthResult refresh(UserPrincipal userPrincipal) {
         AuthUser authUser = authUserService.loadUserById(userPrincipal.getUserId());
-        EmailPasswordAuthenticationToken authenticated = EmailPasswordAuthenticationToken.authenticated(authUser.getUserId(), authUser.getAuthorities());
+        var authenticated = EmailPasswordAuthentication.authenticated(new UserId(authUser.getUserId()), authUser.getAuthorities());
         log.info("[REFRESH] userId = {}", authUser.getUserId());
         return getAuthResult(authenticated);
     }
