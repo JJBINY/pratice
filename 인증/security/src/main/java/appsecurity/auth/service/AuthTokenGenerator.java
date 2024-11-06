@@ -21,7 +21,7 @@ public class AuthTokenGenerator {
     private final AuthTokenRepository authTokenRepository; // todo refactor blacklist repo
 
     public AuthToken generateToken(Authentication authentication) {
-        if(!authentication.isAuthenticated()){ // precondition
+        if (!authentication.isAuthenticated()) { // precondition
             throw new IllegalArgumentException("인증되지 않은 인증정보로는 토큰을 생성할 수 없습니다");
         }
 
@@ -29,12 +29,11 @@ public class AuthTokenGenerator {
         List<String> roles;
 
         if (authentication instanceof EmailPasswordAuthenticationToken) {
-            AuthUser authUser = ((EmailPasswordAuthenticationToken) authentication).getPrincipal();
-            userId = authUser.getUserId();
-            roles = authUser.getAuthorities().stream()
+            userId = ((EmailPasswordAuthenticationToken) authentication).getPrincipal();
+            roles = authentication.getAuthorities().stream()
                     .map(GrantedAuthority::getAuthority)
                     .toList();
-        }else{
+        } else {
             throw new IllegalArgumentException("지원하지 않은 형태의 인증 정보입니다");
         }
 
@@ -60,5 +59,6 @@ public class AuthTokenGenerator {
     }
 
     @Builder
-    public record AuthToken(String forAccess, String forRefresh){}
+    public record AuthToken(String forAccess, String forRefresh) {
+    }
 }

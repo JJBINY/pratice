@@ -1,6 +1,5 @@
 package appsecurity.auth.security;
 
-import appsecurity.auth.AuthUser;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.util.Assert;
@@ -8,7 +7,7 @@ import org.springframework.util.Assert;
 import java.util.Collection;
 
 public class EmailPasswordAuthenticationToken extends AbstractAuthenticationToken {
-    private final AuthUser principal;
+    private final Long principal; // todo AuthUser일 필요가 없음, UserId로 대체
     private final String email;
     private final String password;
 
@@ -16,11 +15,11 @@ public class EmailPasswordAuthenticationToken extends AbstractAuthenticationToke
         return new EmailPasswordAuthenticationToken(email, password);
     }
 
-    public static EmailPasswordAuthenticationToken authenticated(AuthUser principal) {
-        return new EmailPasswordAuthenticationToken(principal, principal.getAuthorities());
+    public static EmailPasswordAuthenticationToken authenticated(Long principal, Collection<? extends GrantedAuthority> authorities) {
+        return new EmailPasswordAuthenticationToken(principal, authorities);
     }
 
-    private EmailPasswordAuthenticationToken(AuthUser principal, Collection<? extends GrantedAuthority> authorities) {
+    private EmailPasswordAuthenticationToken(Long principal, Collection<? extends GrantedAuthority> authorities) {
         super(authorities);
         this.principal = principal;
         this.email = null;
@@ -37,7 +36,7 @@ public class EmailPasswordAuthenticationToken extends AbstractAuthenticationToke
     }
 
     @Override
-    public AuthUser getPrincipal() {
+    public Long getPrincipal() {
         return this.principal;
     }
 

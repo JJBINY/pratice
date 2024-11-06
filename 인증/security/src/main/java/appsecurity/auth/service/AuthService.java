@@ -34,7 +34,7 @@ public class AuthService {
     @Transactional
     public AuthResult refresh(UserPrincipal userPrincipal) {
         AuthUser authUser = authUserService.loadUserById(userPrincipal.getUserId());
-        EmailPasswordAuthenticationToken authenticated = EmailPasswordAuthenticationToken.authenticated(authUser);
+        EmailPasswordAuthenticationToken authenticated = EmailPasswordAuthenticationToken.authenticated(authUser.getUserId(), authUser.getAuthorities());
         log.info("[REFRESH] userId = {}", authUser.getUserId());
         return getAuthResult(authenticated);
     }
