@@ -2,6 +2,7 @@ package appsecurity.auth;
 
 import appsecurity.auth.exception.UnauthenticatedException;
 import appsecurity.auth.jwt.JwtValidationException;
+import appsecurity.auth.jwt.JwtType;
 import appsecurity.auth.repository.AuthTokenRepository;
 import appsecurity.auth.config.AuthProps;
 import appsecurity.auth.jwt.JwtProvider;
@@ -39,7 +40,7 @@ public class AuthenticateUserResolver implements HandlerMethodArgumentResolver {
         String token = substringAfter(refreshHeader, authProps.scheme).trim();
         log.info("refreshHeader = {}, token = {}", refreshHeader, token);
         try {
-            JwtProvider.Claims claims = jwtProvider.validate(token, TokenType.REFRESH);
+            JwtProvider.Claims claims = jwtProvider.validate(token, JwtType.REFRESH);
             //todo blacklist로 변경
             authTokenRepository.findByUserId(claims.userId())
                     .orElseThrow(() -> new UnauthenticatedException())

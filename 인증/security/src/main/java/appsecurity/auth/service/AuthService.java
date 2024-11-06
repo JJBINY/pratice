@@ -1,6 +1,6 @@
 package appsecurity.auth.service;
 
-import appsecurity.auth.AuthUser;
+import appsecurity.auth.security.AuthUser;
 import appsecurity.auth.UserPrincipal;
 import appsecurity.auth.security.EmailPasswordAuthenticationToken;
 import appsecurity.auth.service.dto.AuthResult;
@@ -18,7 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Slf4j
 public class AuthService {
     private final AuthUserService authUserService;
-    private final AuthTokenProvider authTokenProvider;
+    private final AuthTokenGenerator authTokenGenerator;
     private final AuthenticationManager authenticationManager;
 
     @Transactional
@@ -40,7 +40,7 @@ public class AuthService {
     }
 
     private AuthResult getAuthResult(Authentication authentication) {
-        var authToken = authTokenProvider.generateToken(authentication);
+        var authToken = authTokenGenerator.generateToken(authentication);
         return new AuthResult(authToken.forAccess(), authToken.forRefresh());
     }
 

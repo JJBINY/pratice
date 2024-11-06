@@ -1,6 +1,5 @@
 package appsecurity.auth.security;
 
-import appsecurity.auth.AuthUser;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.util.Assert;
@@ -8,15 +7,15 @@ import org.springframework.util.Assert;
 import java.util.Collection;
 
 public class JwtAuthenticationToken extends AbstractAuthenticationToken {
-    private final AuthUser principal;
-    private final String jwt; // jwt; string보다는 JWT타입(record) 생성해서 할당
+    private final Long principal; // UserId
+    private final String jwt; // todo jwt; string보다는 JWT타입(record) 생성해서 할당
 
     public static JwtAuthenticationToken unauthenticated(String jwt) {
         return new JwtAuthenticationToken(jwt);
     }
 
-    public static JwtAuthenticationToken authenticated(AuthUser principal) {
-        return new JwtAuthenticationToken(principal, principal.getAuthorities());
+    public static JwtAuthenticationToken authenticated(Long principal, Collection<? extends GrantedAuthority> authorities) {
+        return new JwtAuthenticationToken(principal, authorities);
     }
 
     private JwtAuthenticationToken(String jwt) {
@@ -26,7 +25,7 @@ public class JwtAuthenticationToken extends AbstractAuthenticationToken {
         setAuthenticated(false);
     }
 
-    private JwtAuthenticationToken(AuthUser principal, Collection<? extends GrantedAuthority> authorities) {
+    private JwtAuthenticationToken(Long principal, Collection<? extends GrantedAuthority> authorities) {
         super(authorities);
         this.principal = principal;
         this.jwt = null;

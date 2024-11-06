@@ -1,18 +1,18 @@
 package appsecurity.auth.jwt;
 
 public enum JwtClaims {
-    USER("userId"),
+    USER_ID("userId"),
     ROLES("roles"),
     TYPE("type"),
     SALT("salt");
 
-    private String claimName;
+    private String claim;
 
-    JwtClaims(String claimName) {
-        this.claimName = claimName;
+    JwtClaims(String claim) {
+        this.claim = claim;
     }
 
-    public String getClaimName() {
-        return claimName;
+    public String claim() {
+        return claim;
     }
 }

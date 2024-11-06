@@ -1,6 +1,6 @@
 package appsecurity.auth.service;
 
-import appsecurity.auth.AuthUser;
+import appsecurity.auth.security.AuthUser;
 import appsecurity.auth.exception.UnauthenticatedException;
 import appsecurity.user.User;
 import appsecurity.user.repository.UserRepository;
