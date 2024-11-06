@@ -35,10 +35,11 @@ public class SecurityConfig {
                 .httpBasic(AbstractHttpConfigurer::disable)
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/auth/**").permitAll()
-                        .requestMatchers("/resources/**").denyAll()
+                        .requestMatchers(POST, "/api/auth/login").permitAll()
                         .requestMatchers(POST, "/api/users/signup").permitAll()
-                        .requestMatchers(GET, "/api/users/authorization").hasRole(Role.ADMIN.name())
+                        .requestMatchers(GET, "/api/auth/refresh").permitAll()
+                        .requestMatchers(GET, "/api/auth/authorization").hasRole(Role.ADMIN.name())
+                        .requestMatchers("/resources/**").denyAll()
                         .anyRequest().authenticated())
                 .exceptionHandling(eh -> eh
                         .authenticationEntryPoint(customAuthenticationEntryPoint)
@@ -52,7 +53,7 @@ public class SecurityConfig {
         return new ProviderManager(emailPasswordAuthenticationProvider, jwtAuthenticationProvider);
     }
 
-    private JwtAuthenticationFilter jwtAuthenticationFilter(){
+    private JwtAuthenticationFilter jwtAuthenticationFilter() {
         return new JwtAuthenticationFilter(authProps, authenticationManager());
     }
 }

@@ -10,6 +10,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.MethodParameter;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.support.WebDataBinderFactory;
 import org.springframework.web.context.request.NativeWebRequest;
@@ -45,7 +46,6 @@ public class AuthenticateUserResolver implements HandlerMethodArgumentResolver {
             authTokenRepository.findByUserId(claims.userId())
                     .orElseThrow(() -> new UnauthenticatedException())
                     .validate(token, ()->new UnauthenticatedException());
-
             return new UserPrincipal(claims.userId(), Role.roleOf(claims.roles().get(0))); //todo roles 처리 방법 변경
         }catch (JwtValidationException e){
             throw new UnauthenticatedException(e.getMessage());

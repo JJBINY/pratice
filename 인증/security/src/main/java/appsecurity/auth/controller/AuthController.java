@@ -36,11 +36,11 @@ public class AuthController {
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(AuthResponse.builder()
                         .accessToken(result.token())
-                        .refreshToken(result.refresh())
+                        .refreshToken(result.refresh()) // todo refresh token은 http-only, samesite=strict 등이 적용된 쿠키로 전달
                         .build());
     }
 
-    @GetMapping("/refresh")
+    @GetMapping("/refresh") // todo 전체적인 리프래시 과정 리팩토링
     public ResponseEntity<AuthResponse> refresh(@AuthenticateUser UserPrincipal userPrincipal) {
         AuthResult result = authService.refresh(userPrincipal);
 
@@ -51,5 +51,19 @@ public class AuthController {
                         .accessToken(result.token())
                         .refreshToken(result.refresh())
                         .build());
+    }
+
+    @GetMapping("/authentication")
+    public ResponseEntity<String> authentication() {
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body("인증 테스트 성공");
+    }
+
+    @GetMapping("/authorization")
+    public ResponseEntity<String> authorization() {
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body("인가 테스트 성공");
     }
 }

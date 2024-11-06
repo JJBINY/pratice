@@ -30,18 +30,4 @@ public class UserController {
                 .status(HttpStatus.NO_CONTENT)
                 .build();
     }
-
-    @GetMapping("/authentication")
-    public ResponseEntity<String> authentication() {
-        return ResponseEntity
-                .status(HttpStatus.OK)
-                .body("인증 테스트 성공");
-    }
-
-    @GetMapping("/authorization")
-    public ResponseEntity<String> authorization() {
-        return ResponseEntity
-                .status(HttpStatus.OK)
-                .body("인가 테스트 성공");
-    }
 }

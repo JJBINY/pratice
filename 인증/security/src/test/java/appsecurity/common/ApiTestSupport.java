@@ -71,12 +71,12 @@ public class ApiTestSupport {
     }
 
     protected ResultActions callAuthenticationApi(String token) throws Exception {
-        return mockMvc.perform(get("/api/users/authentication")
+        return mockMvc.perform(get("/api/auth/authentication")
                 .header(authProps.header, String.join(" ", authProps.scheme, token)));
     }
 
     protected ResultActions callAuthorizationApi(String token) throws Exception {
-        return mockMvc.perform(get("/api/users/authorization")
+        return mockMvc.perform(get("/api/auth/authorization")
                 .header(authProps.header, String.join(" ", authProps.scheme, token)));
     }
 }
