@@ -60,7 +60,6 @@ public class ApiTestSupport {
                 .content(objectMapper.writeValueAsString(request)));
     }
 
-    //todo refresh cookie에서 꺼내오도록 변경
     protected AuthResult callLoginApiAndGetAuthResults(LoginRequest request) throws Exception {
         return getAuthResult(callLoginApi(request));
     }
