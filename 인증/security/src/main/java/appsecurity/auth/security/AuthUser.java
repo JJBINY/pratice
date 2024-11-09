@@ -6,14 +6,14 @@ import org.springframework.security.core.userdetails.User;
 import java.util.Collection;
 
 public class AuthUser extends User {
-    private final Long userId; //todo Ubiquitous Language로 작성
+    private final Long id;
 
-    public AuthUser(Long userId, String email, String password, Collection<? extends GrantedAuthority> authorities) {
+    public AuthUser(Long id, String email, String password, Collection<? extends GrantedAuthority> authorities) {
         super(email, password, authorities);
-        this.userId = userId;
+        this.id = id;
     }
 
-    public Long getUserId() {
-        return userId;
+    public Long getId() {
+        return id;
     }
 }

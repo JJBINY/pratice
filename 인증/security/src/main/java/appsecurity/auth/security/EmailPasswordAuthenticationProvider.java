@@ -30,7 +30,7 @@ public class EmailPasswordAuthenticationProvider implements AuthenticationProvid
             throw new UnauthenticatedException("Invalid password");
         }
 
-        return EmailPasswordAuthentication.authenticated(new UserId(authUser.getUserId()), authUser.getAuthorities());
+        return EmailPasswordAuthentication.authenticated(new UserId(authUser.getId()), authUser.getAuthorities());
     }
 
     @Override
