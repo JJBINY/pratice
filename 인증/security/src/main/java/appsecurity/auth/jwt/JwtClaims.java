@@ -1,18 +1,7 @@
 package appsecurity.auth.jwt;
 
-public enum JwtClaims {
-    USER_ID("userId"),
-    ROLES("roles"),
-    TYPE("type"),
-    SALT("salt");
+import java.time.Instant;
+import java.util.List;
 
-    private String claim;
-
-    JwtClaims(String claim) {
-        this.claim = claim;
-    }
-
-    public String claim() {
-        return claim;
-    }
-}
+public record JwtClaims(Long tokenId, Long userId, JwtType type, List<String> roles, Instant expiresAt) {
+} //todo JwtProvider.Claims 대체

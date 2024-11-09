@@ -6,15 +6,16 @@ import appsecurity.auth.controller.dto.LoginRequest;
 import appsecurity.user.controller.dto.SignupRequest;
 import appsecurity.user.repository.UserRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.servlet.http.Cookie;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
-import org.springframework.web.context.WebApplicationContext;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -59,15 +60,23 @@ public class ApiTestSupport {
                 .content(objectMapper.writeValueAsString(request)));
     }
 
-    protected AuthResponse callLoginApiAndGetResponse(LoginRequest request) throws Exception {
-        ResultActions loginResponse = callLoginApi(request);
-        String json = loginResponse.andReturn().getResponse().getContentAsString();
-        return objectMapper.readValue(json, AuthResponse.class);
+    //todo refresh cookie에서 꺼내오도록 변경
+    protected AuthResult callLoginApiAndGetAuthResults(LoginRequest request) throws Exception {
+        return getAuthResult(callLoginApi(request));
     }
 
+    protected AuthResult getAuthResult(ResultActions result) throws Exception {
+        MockHttpServletResponse response = result.andReturn().getResponse();
+        var json = response.getContentAsString();
+        var accessToken = objectMapper.readValue(json, AuthResponse.class).accessToken();
+        var refreshToken = response.getCookie("refreshToken").getValue();
+        return new AuthResult(accessToken, refreshToken);
+    }
+
+
     protected ResultActions callRefreshApi(String refresh) throws Exception {
-        return mockMvc.perform(get("/api/auth/refresh")
-                .header(authProps.refreshHeader, String.join(" ", authProps.scheme, refresh)));
+        return mockMvc.perform(post("/api/auth/refresh")
+                .cookie(new Cookie("refreshToken", refresh)));
     }
 
     protected ResultActions callAuthenticationApi(String token) throws Exception {
@@ -79,4 +88,6 @@ public class ApiTestSupport {
         return mockMvc.perform(get("/api/auth/authorization")
                 .header(authProps.header, String.join(" ", authProps.scheme, token)));
     }
+
+    protected record AuthResult(String accessToken, String refreshToken) {}
 }

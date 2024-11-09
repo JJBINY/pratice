@@ -35,9 +35,9 @@ public class SecurityConfig {
                 .httpBasic(AbstractHttpConfigurer::disable)
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers(POST, "/api/auth/login").permitAll()
                         .requestMatchers(POST, "/api/users/signup").permitAll()
-                        .requestMatchers(GET, "/api/auth/refresh").permitAll()
+                        .requestMatchers(POST, "/api/auth/login").permitAll()
+                        .requestMatchers(POST, "/api/auth/refresh").permitAll()
                         .requestMatchers(GET, "/api/auth/authorization").hasRole(Role.ADMIN.name())
                         .requestMatchers("/resources/**").denyAll()
                         .anyRequest().authenticated())
@@ -45,7 +45,7 @@ public class SecurityConfig {
                         .authenticationEntryPoint(customAuthenticationEntryPoint)
                         .accessDeniedHandler(customAccessDeniedHandler))
                 .addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class)
-                .build();
+                .build(); //todo oauth 적용
     }
 
     @Bean

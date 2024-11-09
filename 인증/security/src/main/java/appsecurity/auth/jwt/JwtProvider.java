@@ -16,21 +16,22 @@ import java.util.Random;
 
 import static appsecurity.auth.jwt.JwtType.ACCESS;
 import static appsecurity.auth.jwt.JwtType.REFRESH;
-import static appsecurity.auth.jwt.JwtClaims.*;
+import static appsecurity.auth.jwt.JwtClaimName.*;
 
 /**
  * Reference : https://github.com/auth0/java-jwt/blob/master/EXAMPLES.md
  */
 @Component
-public class JwtProvider {
+public class JwtProvider { // todo JwtGenerator JwtValidator 추가
     private final String issuer;
     private final String secret;
     private final Map<JwtType, Long> expirySecondsMap;
     private final Algorithm algorithm;
     private final JWTVerifier jwtVerifier;
     private final Random randomSalt;
+    private final UniqueIdGenerator uniqueIdGenerator;
 
-    public JwtProvider(JwtConfigProps jwtConfigProps) {
+    public JwtProvider(JwtConfigProps jwtConfigProps, UniqueIdGenerator uniqueIdGenerator) {
         this.issuer = jwtConfigProps.issuer;
         this.secret = jwtConfigProps.secret;
         this.expirySecondsMap = Map.of(
@@ -41,15 +42,19 @@ public class JwtProvider {
                 .withIssuer(issuer)
                 .build();
         this.randomSalt = new Random();
+        this.uniqueIdGenerator = uniqueIdGenerator;
     }
 
-    public String createToken(Long userId, List<String> roles, JwtType type) {
-        return createToken(userId, roles, type, expirySecondsMap.get(type));
+    public Jwt generate(Long userId, List<String> roles, JwtType type) {
+        return Jwt.builder()
+                .value(generate(userId, roles, type, expirySecondsMap.get(type)))
+                .expirySeconds(expirySecondsMap.get(type))
+                .build();
     }
 
-    private String createToken(Long userId, List<String> roles, JwtType type, long expirySeconds) { //todo authUser, Role 등 외부 의존성 JwtAuthenticationProvider로 빼내기
-
+    private String generate(Long userId, List<String> roles, JwtType type, long expirySeconds) {
         return JWT.create().withIssuer(issuer)
+                .withClaim(TOKEN_ID.claim(), uniqueIdGenerator.generate())
                 .withClaim(USER_ID.claim(), userId)
                 .withClaim(ROLES.claim(), roles)
                 .withClaim(TYPE.claim(), type.name())
@@ -58,22 +63,8 @@ public class JwtProvider {
                 .sign(algorithm);
     }
 
-    public Claims validate(String jwt, JwtType requiredType) throws JwtValidationException {
-        Claims claims = validate(jwt);
-        if (claims.type != requiredType) {
-            throw new JwtValidationException("유효하지 않은 타입의 토큰입니다.");
-        }
-        return claims;
-    }
-
     public Claims validate(String jwt) throws JwtValidationException {
-        Map<String, Claim> claims = decode(jwt).getClaims();
-
-        Long userId = claims.get(USER_ID.claim()).asLong();
-        JwtType type = JwtType.valueOf(claims.get(TYPE.claim()).asString());
-        List<String> roles = claims.get(ROLES.claim()).asList(String.class);
-        return new Claims(userId, type, roles);
-
+        return parseClaims(decode(jwt));
     }
 
     private DecodedJWT decode(String jwt) throws JwtValidationException {
@@ -84,6 +75,16 @@ public class JwtProvider {
         }
     }
 
-    public record Claims(Long userId, JwtType type, List<String> roles) {
+    private Claims parseClaims(DecodedJWT decodedJWT){
+        Map<String, Claim> claims = decodedJWT.getClaims();
+        var tokenId = claims.get(TOKEN_ID.claim()).asLong();
+        var userId = claims.get(USER_ID.claim()).asLong();
+        var type = JwtType.valueOf(claims.get(TYPE.claim()).asString());
+        var roles = claims.get(ROLES.claim()).asList(String.class);
+        var expiresAt = decodedJWT.getExpiresAtAsInstant();
+        return new Claims(tokenId, userId, type, roles, expiresAt);
+    }
+
+    public record Claims(Long tokenId, Long userId, JwtType type, List<String> roles, Instant expiresAt) {
     }
 }

@@ -25,7 +25,7 @@ public class JwtAuthenticationProvider implements AuthenticationProvider{
             var claims = jwtProvider.validate(credentials.jwt());
             var authorities = claims.roles().stream().map(SimpleGrantedAuthority::new).toList();
             log.debug("토큰 검증 성공: 권한 = {}", authorities);
-            return JwtAuthentication.authenticated(new UserId(claims.userId()), authorities);
+            return JwtAuthentication.authenticated(new UserId(claims.userId()), claims, authorities);
         } catch (JwtValidationException e) {
             log.warn("토큰 검증 실패 = {}", e.getMessage());
             return JwtAuthentication.unauthenticated(credentials.jwt());
