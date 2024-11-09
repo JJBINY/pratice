@@ -63,7 +63,7 @@ public class JwtProvider { // todo JwtGenerator JwtValidator 추가
                 .sign(algorithm);
     }
 
-    public Claims validate(String jwt) throws JwtValidationException {
+    public JwtClaims validate(String jwt) throws JwtValidationException {
         return parseClaims(decode(jwt));
     }
 
@@ -75,16 +75,13 @@ public class JwtProvider { // todo JwtGenerator JwtValidator 추가
         }
     }
 
-    private Claims parseClaims(DecodedJWT decodedJWT){
+    private JwtClaims parseClaims(DecodedJWT decodedJWT){
         Map<String, Claim> claims = decodedJWT.getClaims();
         var tokenId = claims.get(TOKEN_ID.claim()).asLong();
         var userId = claims.get(USER_ID.claim()).asLong();
         var type = JwtType.valueOf(claims.get(TYPE.claim()).asString());
         var roles = claims.get(ROLES.claim()).asList(String.class);
         var expiresAt = decodedJWT.getExpiresAtAsInstant();
-        return new Claims(tokenId, userId, type, roles, expiresAt);
-    }
-
-    public record Claims(Long tokenId, Long userId, JwtType type, List<String> roles, Instant expiresAt) {
+        return new JwtClaims(tokenId, userId, type, roles, expiresAt);
     }
 }

@@ -1,6 +1,6 @@
 package appsecurity.auth.security;
 
-import appsecurity.auth.jwt.JwtProvider;
+import appsecurity.auth.jwt.JwtClaims;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.util.Assert;
@@ -10,13 +10,13 @@ import java.util.Collection;
 public class JwtAuthentication extends AbstractAuthenticationToken implements CustomAuthentication {
     private final UserId principal;
     private final Jwt credentials;
-    private final JwtProvider.Claims details;
+    private final JwtClaims details;
 
     public static JwtAuthentication unauthenticated(String jwt) {
         return new JwtAuthentication(jwt);
     }
 
-    public static JwtAuthentication authenticated(UserId principal, JwtProvider.Claims details, Collection<? extends GrantedAuthority> authorities) {
+    public static JwtAuthentication authenticated(UserId principal, JwtClaims details, Collection<? extends GrantedAuthority> authorities) {
         return new JwtAuthentication(principal, details, authorities);
     }
 
@@ -28,7 +28,7 @@ public class JwtAuthentication extends AbstractAuthenticationToken implements Cu
         setAuthenticated(false);
     }
 
-    private JwtAuthentication(UserId principal, JwtProvider.Claims details, Collection<? extends GrantedAuthority> authorities) {
+    private JwtAuthentication(UserId principal, JwtClaims details, Collection<? extends GrantedAuthority> authorities) {
         super(authorities);
         this.principal = principal;
         this.credentials = null;
@@ -47,7 +47,7 @@ public class JwtAuthentication extends AbstractAuthenticationToken implements Cu
     }
 
     @Override
-    public JwtProvider.Claims getDetails() {
+    public JwtClaims getDetails() {
         return this.details;
     }
 
