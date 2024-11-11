@@ -2,14 +2,17 @@ package appsecurity.auth.service;
 
 import appsecurity.auth.blacklist.TokenBlackList;
 import appsecurity.auth.exception.UnauthenticatedException;
+import appsecurity.auth.jwt.JwtClaims;
 import appsecurity.auth.jwt.JwtType;
 import appsecurity.auth.security.EmailPasswordAuthentication;
 import appsecurity.auth.security.JwtAuthentication;
 import appsecurity.auth.service.dto.AuthTokens;
 import appsecurity.auth.service.dto.Login;
+import appsecurity.auth.service.dto.Logout;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -33,20 +36,30 @@ public class AuthService {
     @Transactional
     public AuthTokens refresh(String refreshToken) {
         log.debug("refresh process in progress : {}",refreshToken);
-        var unauthenticated = JwtAuthentication.unauthenticated(refreshToken);
-        var authentication = (JwtAuthentication) authenticationManager.authenticate(unauthenticated);
-        validateRefresh(authentication);
-        return authTokensProvider.generate(authentication);
+        return authTokensProvider.generate(validate(refreshToken, JwtType.REFRESH));
     }
 
-    private void validateRefresh(JwtAuthentication jwtAuthentication) {
+    @Transactional
+    public void logout(Logout logout) {
+        log.debug("logout process in progress : {}",logout);
+        validate(logout.accessToken(), JwtType.ACCESS);
+        validate(logout.refreshToken(), JwtType.REFRESH);
+    }
+
+    private Authentication validate(String token, JwtType type) {
+        var unauthenticated = JwtAuthentication.unauthenticated(token);
+        var jwtAuthentication = (JwtAuthentication) authenticationManager.authenticate(unauthenticated);
+
         if(!jwtAuthentication.isAuthenticated()){
             throw new UnauthenticatedException();
         }
 
-        var claims = jwtAuthentication.getDetails();
+        validate(jwtAuthentication.getDetails(), type);
+        return jwtAuthentication;
+    }
 
-        if(claims.type() != JwtType.REFRESH){
+    private void validate(JwtClaims claims, JwtType type) {
+        if(claims.type() != type){
             throw new UnauthenticatedException("유효하지 않은 타입의 토큰입니다");
         }
 

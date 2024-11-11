@@ -17,7 +17,4 @@ public class AuthProps {
 
     @NotBlank
     public String scheme;
-
-    @NotBlank
-    public String refreshHeader;
 }

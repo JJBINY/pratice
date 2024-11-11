@@ -1,23 +1,23 @@
 package appsecurity.auth.controller;
 
-import appsecurity.auth.jwt.Jwt;
-import appsecurity.auth.service.AuthService;
-import appsecurity.auth.controller.dto.LoginRequest;
+import appsecurity.auth.AccessToken;
 import appsecurity.auth.controller.dto.AuthResponse;
-import appsecurity.auth.service.dto.Login;
+import appsecurity.auth.controller.dto.LoginRequest;
+import appsecurity.auth.jwt.SignedJwt;
+import appsecurity.auth.service.AuthService;
 import appsecurity.auth.service.dto.AuthTokens;
+import appsecurity.auth.service.dto.Login;
+import appsecurity.auth.service.dto.Logout;
 import com.google.common.net.HttpHeaders;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
-
-import static java.util.Objects.isNull;
 
 @Slf4j
 @RestController
@@ -45,6 +45,18 @@ public class AuthController {
         return generateAuthResponse(authTokens);
     }
 
+    @PostMapping("/logout")
+    public ResponseEntity<Void> logout(@AccessToken @NotNull String accessToken,
+                                       @CookieValue(value = "refreshToken") String refreshToken) {
+        log.debug("logout request");
+        authService.logout(Logout.builder()
+                .accessToken(accessToken)
+                .refreshToken(refreshToken)
+                .build());
+
+        return ResponseEntity.noContent().build();
+    }
+
     @GetMapping("/authentication")
     public ResponseEntity<String> authentication() {
         return ResponseEntity
@@ -70,7 +82,7 @@ public class AuthController {
                         .build());
     }
 
-    private static String generateRefreshCookie(Jwt refreshToken) {
+    private static String generateRefreshCookie(SignedJwt refreshToken) {
         return ResponseCookie
                 .from("refreshToken", refreshToken.value())
                 .domain("jjbiny.practice")

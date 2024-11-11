@@ -1,6 +1,6 @@
 package appsecurity.auth.service;
 
-import appsecurity.auth.jwt.Jwt;
+import appsecurity.auth.jwt.SignedJwt;
 import appsecurity.auth.jwt.JwtProvider;
 import appsecurity.auth.jwt.JwtType;
 import appsecurity.auth.security.CustomAuthentication;
@@ -38,7 +38,7 @@ public class AuthTokensProvider {
                 .build();
     }
 
-    private Jwt generate(UserId userId, List<String> roles, JwtType type) {
+    private SignedJwt generate(UserId userId, List<String> roles, JwtType type) {
         return jwtProvider.generate(userId.userId(), roles, type);
     }
 }

@@ -42,8 +42,8 @@ public class JwtProvider { // todo JwtGenerator JwtValidator 추가
         this.uniqueIdGenerator = uniqueIdGenerator;
     }
 
-    public Jwt generate(Long userId, List<String> roles, JwtType type) {
-        return Jwt.builder()
+    public SignedJwt generate(Long userId, List<String> roles, JwtType type) {
+        return SignedJwt.builder()
                 .value(generate(userId, roles, type, expirySecondsMap.get(type)))
                 .expirySeconds(expirySecondsMap.get(type))
                 .build();

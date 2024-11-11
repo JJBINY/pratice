@@ -16,8 +16,8 @@ public class JwtAuthentication extends AbstractAuthenticationToken implements Cu
         return new JwtAuthentication(jwt);
     }
 
-    public static JwtAuthentication authenticated(UserId principal, JwtClaims details, Collection<? extends GrantedAuthority> authorities) {
-        return new JwtAuthentication(principal, details, authorities);
+    public static JwtAuthentication authenticated(UserId principal, String jwt, JwtClaims details, Collection<? extends GrantedAuthority> authorities) {
+        return new JwtAuthentication(principal, jwt, details, authorities);
     }
 
     private JwtAuthentication(String jwt) {
@@ -28,10 +28,10 @@ public class JwtAuthentication extends AbstractAuthenticationToken implements Cu
         setAuthenticated(false);
     }
 
-    private JwtAuthentication(UserId principal, JwtClaims details, Collection<? extends GrantedAuthority> authorities) {
+    private JwtAuthentication(UserId principal, String jwt, JwtClaims details, Collection<? extends GrantedAuthority> authorities) {
         super(authorities);
         this.principal = principal;
-        this.credentials = null;
+        this.credentials = new Jwt(jwt);
         this.details = details;
         super.setAuthenticated(true); // must use super, as we override
     }

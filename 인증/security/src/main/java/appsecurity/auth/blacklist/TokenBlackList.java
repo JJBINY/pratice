@@ -8,8 +8,9 @@ import java.time.Instant;
 
 @Component
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class TokenBlackList {
-    private final BlackedTokenRepository blackedTokenRepository;
+    private final BlackedTokenRepository blackedTokenRepository; // todo redis 전환
 
     @Transactional
     public void add(Long tokenId, Instant expiresAt) {

@@ -26,7 +26,6 @@ spring:
 auth:
   scheme: bearer
   header: Authorization
-  refresh-header: Refresh
 
 jwt:
   issuer: jjbin
