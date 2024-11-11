@@ -1,5 +1,6 @@
 package appsecurity.common;
 
+import appsecurity.auth.blacklist.BlackedTokenRepository;
 import appsecurity.auth.config.AuthProps;
 import appsecurity.auth.controller.dto.AuthResponse;
 import appsecurity.auth.controller.dto.LoginRequest;
@@ -26,19 +27,23 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 public class ApiTestSupport {
 
     @Autowired
+    private CleanUp cleanUp;
+
+    @Autowired
     protected MockMvc mockMvc;
 
     @Autowired
     protected ObjectMapper objectMapper;
 
     @Autowired
-    protected UserRepository userRepository;
-
-    @Autowired
     protected AuthProps authProps;
 
     @Autowired
-    CleanUp cleanUp;
+    protected UserRepository userRepository;
+
+    @Autowired
+    protected BlackedTokenRepository blackedTokenRepository;
+
 
     @BeforeEach
     void beforeEach() {
@@ -72,21 +77,27 @@ public class ApiTestSupport {
         return new AuthResult(accessToken, refreshToken);
     }
 
-
-    protected ResultActions callRefreshApi(String refresh) throws Exception {
+    protected ResultActions callRefreshApi(String refreshToken) throws Exception {
         return mockMvc.perform(post("/api/auth/refresh")
-                .cookie(new Cookie("refreshToken", refresh)));
+                .cookie(new Cookie("refreshToken", refreshToken)));
     }
 
-    protected ResultActions callAuthenticationApi(String token) throws Exception {
+    protected ResultActions callLogoutApi(String accessToken, String refreshToken) throws Exception {
+        return mockMvc.perform(post("/api/auth/logout")
+                .header(authProps.header, String.join(" ", authProps.scheme, accessToken))
+                .cookie(new Cookie("refreshToken", refreshToken)));
+    }
+
+    protected ResultActions callAuthenticationApi(String accessToken) throws Exception {
         return mockMvc.perform(get("/api/auth/authentication")
-                .header(authProps.header, String.join(" ", authProps.scheme, token)));
+                .header(authProps.header, String.join(" ", authProps.scheme, accessToken)));
     }
 
-    protected ResultActions callAuthorizationApi(String token) throws Exception {
+    protected ResultActions callAuthorizationApi(String accessToken) throws Exception {
         return mockMvc.perform(get("/api/auth/authorization")
-                .header(authProps.header, String.join(" ", authProps.scheme, token)));
+                .header(authProps.header, String.join(" ", authProps.scheme, accessToken)));
     }
 
-    protected record AuthResult(String accessToken, String refreshToken) {}
+    protected record AuthResult(String accessToken, String refreshToken) {
+    }
 }

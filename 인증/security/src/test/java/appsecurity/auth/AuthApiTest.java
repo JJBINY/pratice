@@ -5,6 +5,7 @@ import appsecurity.common.ApiTestSupport;
 import appsecurity.user.User;
 import appsecurity.user.controller.dto.SignupRequest;
 import lombok.extern.slf4j.Slf4j;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -91,11 +92,11 @@ public class AuthApiTest extends ApiTestSupport {
     }
 
     @Nested
-    @DisplayName("엑세스 토큰 리프래시 API")
+    @DisplayName("토큰 리프래시 API")
     class Refresh {
         @Test
         @DisplayName("요청이 성공하면 새로운 AccessToken과 RefreshToken을 발급받는다")
-        void refreshSuccess() throws Exception {
+        void success() throws Exception {
             // given
             callSignupApi(aSignupRequest());
             AuthResult authResult = callLoginApiAndGetAuthResults(aLoginRequest());
@@ -126,7 +127,7 @@ public class AuthApiTest extends ApiTestSupport {
         class Failure {
             @Test
             @DisplayName("refreshToken Cookie를 설정하지 않은 경우")
-            void refreshTokenIsNull() throws Exception {
+            void tokenIsNull() throws Exception {
                 // when
                 ResultActions result = mockMvc.perform(post("/api/auth/refresh"));
 
@@ -184,6 +185,60 @@ public class AuthApiTest extends ApiTestSupport {
                         status().isUnauthorized(),
                         jsonPath("$.message").exists());
             }
+        }
+    }
+
+    @Nested
+    @DisplayName("로그아웃 API")
+    class Logout {
+        @Test
+        @DisplayName("요청이 성공하면 토큰이 블랙리스트에 등록된다")
+        void logout() throws Exception {
+            // given
+            callSignupApi(aSignupRequest());
+            AuthResult authResult = callLoginApiAndGetAuthResults(aLoginRequest());
+            long before = blackedTokenRepository.count();
+
+            // when
+            ResultActions result = callLogoutApi(authResult.accessToken(), authResult.refreshToken());
+
+            // then
+            result.andExpectAll(
+                    status().isNoContent());
+            long after = blackedTokenRepository.count();
+            Assertions.assertThat(after - before).isEqualTo(2);
+        }
+
+        @Test
+        @DisplayName("요청 이후 이전 엑세스 토큰을 사용할 수 없다")
+        void usePreviousAccessToken() throws Exception {
+            // given
+            callSignupApi(aSignupRequest());
+            AuthResult authResult = callLoginApiAndGetAuthResults(aLoginRequest());
+            callLogoutApi(authResult.accessToken(), authResult.refreshToken());
+
+            // when
+            ResultActions result = callAuthenticationApi(authResult.accessToken());
+
+            // then
+            result.andExpectAll(
+                    status().isUnauthorized());
+        }
+
+        @Test
+        @DisplayName("요청 이후 이전 리프래시 토큰을 사용할 수 없다")
+        void usePreviousRefreshToken() throws Exception {
+            // given
+            callSignupApi(aSignupRequest());
+            AuthResult authResult = callLoginApiAndGetAuthResults(aLoginRequest());
+            callLogoutApi(authResult.accessToken(), authResult.refreshToken());
+
+            // when
+            ResultActions result = callRefreshApi(authResult.refreshToken());
+
+            // then
+            result.andExpectAll(
+                    status().isUnauthorized());
         }
 
     }
