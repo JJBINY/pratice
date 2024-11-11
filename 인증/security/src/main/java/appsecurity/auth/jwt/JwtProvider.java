@@ -3,9 +3,6 @@ package appsecurity.auth.jwt;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.algorithms.Algorithm;
-import com.auth0.jwt.exceptions.JWTVerificationException;
-import com.auth0.jwt.interfaces.Claim;
-import com.auth0.jwt.interfaces.DecodedJWT;
 import org.springframework.stereotype.Component;
 
 import java.time.Instant;
@@ -14,9 +11,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
+import static appsecurity.auth.jwt.JwtClaimName.*;
 import static appsecurity.auth.jwt.JwtType.ACCESS;
 import static appsecurity.auth.jwt.JwtType.REFRESH;
-import static appsecurity.auth.jwt.JwtClaimName.*;
 
 /**
  * Reference : https://github.com/auth0/java-jwt/blob/master/EXAMPLES.md
@@ -63,25 +60,7 @@ public class JwtProvider { // todo JwtGenerator JwtValidator 추가
                 .sign(algorithm);
     }
 
-    public JwtClaims validate(String jwt) throws JwtValidationException {
-        return parseClaims(decode(jwt));
-    }
-
-    private DecodedJWT decode(String jwt) throws JwtValidationException {
-        try {
-            return jwtVerifier.verify(jwt);
-        } catch (JWTVerificationException e) {
-            throw new JwtValidationException();
-        }
-    }
-
-    private JwtClaims parseClaims(DecodedJWT decodedJWT){
-        Map<String, Claim> claims = decodedJWT.getClaims();
-        var tokenId = claims.get(TOKEN_ID.claim()).asLong();
-        var userId = claims.get(USER_ID.claim()).asLong();
-        var type = JwtType.valueOf(claims.get(TYPE.claim()).asString());
-        var roles = claims.get(ROLES.claim()).asList(String.class);
-        var expiresAt = decodedJWT.getExpiresAtAsInstant();
-        return new JwtClaims(tokenId, userId, type, roles, expiresAt);
+     protected com.auth0.jwt.interfaces.JWTVerifier getVerifier() {
+        return jwtVerifier;
     }
 }

@@ -1,7 +1,7 @@
 package appsecurity.auth.security;
 
-import appsecurity.auth.jwt.JwtProvider;
 import appsecurity.auth.jwt.JwtValidationException;
+import appsecurity.auth.jwt.JwtValidator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationProvider;
@@ -14,7 +14,7 @@ import org.springframework.stereotype.Component;
 @Component
 @RequiredArgsConstructor
 public class JwtAuthenticationProvider implements AuthenticationProvider{
-    private final JwtProvider jwtProvider;
+    private final JwtValidator jwtValidator;
 
     @Override
     public Authentication authenticate(Authentication authentication) throws AuthenticationException {
@@ -22,7 +22,7 @@ public class JwtAuthenticationProvider implements AuthenticationProvider{
         var credentials = jwtAuthenticationToken.getCredentials();
 
         try {
-            var claims = jwtProvider.validate(credentials.jwt());
+            var claims = jwtValidator.validate(credentials.jwt());
             var authorities = claims.roles().stream().map(SimpleGrantedAuthority::new).toList();
             log.debug("토큰 검증 성공: 권한 = {}", authorities);
             return JwtAuthentication.authenticated(new UserId(claims.userId()), claims, authorities);
