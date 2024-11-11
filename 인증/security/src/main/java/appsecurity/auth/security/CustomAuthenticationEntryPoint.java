@@ -14,6 +14,8 @@ import org.springframework.web.servlet.HandlerExceptionResolver;
 
 import java.io.IOException;
 
+import static java.util.Objects.isNull;
+
 @Slf4j
 @Component
 @RequiredArgsConstructor
@@ -25,6 +27,8 @@ public class CustomAuthenticationEntryPoint implements AuthenticationEntryPoint 
     @Override
     public void commence(HttpServletRequest request, HttpServletResponse response, AuthenticationException authException) throws IOException, ServletException {
         log.info("Handle 401 Error: requestURI = {}", request.getRequestURI());
-        handlerExceptionResolver.resolveException(request, response, null, new UnauthenticatedException(authException.getMessage()));
+        String msg = (String) request.getAttribute("msg");
+        msg = isNull(msg) ? authException.getMessage() : msg;
+        handlerExceptionResolver.resolveException(request, response, null, new UnauthenticatedException(msg));
     }
 }

@@ -1,6 +1,7 @@
 package appsecurity.auth.jwt;
 
 import com.auth0.jwt.exceptions.JWTVerificationException;
+import com.auth0.jwt.exceptions.TokenExpiredException;
 import com.auth0.jwt.interfaces.Claim;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import lombok.RequiredArgsConstructor;
@@ -25,7 +26,11 @@ public class JwtValidator {
         try {
             return jwtProvider.getVerifier().verify(jwt);
         } catch (JWTVerificationException e) {
-            throw new JwtValidationException();
+            if(e instanceof TokenExpiredException){
+                throw new JwtValidationException("만료된 토큰입니다");
+            }else {
+                throw new JwtValidationException();
+            }
         }
     }
 

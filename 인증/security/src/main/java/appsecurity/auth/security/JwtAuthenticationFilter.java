@@ -29,8 +29,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         log.info("JwtAuthenticationFilter: authHeader = {}", authHeader);
         if (authHeader == null || !authHeader.startsWith(authProps.scheme)) {
-            // todo 예외 타입 세분화: 예외 타입을 속성에 지정
-            SecurityContextHolder.clearContext();
+            request.setAttribute("msg", "인증 헤더가 올바르지 않습니다");
             filterChain.doFilter(request, response);
             return;
         }
@@ -40,8 +39,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         var authentication = authenticationManager.authenticate(unauthenticated);
 
         if(!authentication.isAuthenticated()){
-            // todo 예외 타입 세분화: 예외 타입을 속성에 지정
-            SecurityContextHolder.clearContext();
+            request.setAttribute("msg", "인증 토큰이 유효하지 않습니다");
             filterChain.doFilter(request, response);
             return;
         }
